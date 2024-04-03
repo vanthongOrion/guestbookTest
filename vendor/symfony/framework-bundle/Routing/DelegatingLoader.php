@@ -14,6 +14,7 @@ namespace Symfony\Bundle\FrameworkBundle\Routing;
 use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\Loader\DelegatingLoader as BaseDelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolverInterface;
+use Symfony\Component\Routing\RouteCollection;
 
 /**
  * DelegatingLoader delegates route loading to other loaders using a loader resolver.
@@ -29,10 +30,12 @@ class DelegatingLoader extends BaseDelegatingLoader
 {
     private $loading = false;
     private $defaultOptions;
+    private $defaultRequirements;
 
-    public function __construct(LoaderResolverInterface $resolver, array $defaultOptions = [])
+    public function __construct(LoaderResolverInterface $resolver, array $defaultOptions = [], array $defaultRequirements = [])
     {
         $this->defaultOptions = $defaultOptions;
+        $this->defaultRequirements = $defaultRequirements;
 
         parent::__construct($resolver);
     }
@@ -40,7 +43,7 @@ class DelegatingLoader extends BaseDelegatingLoader
     /**
      * {@inheritdoc}
      */
-    public function load($resource, string $type = null)
+    public function load($resource, ?string $type = null): RouteCollection
     {
         if ($this->loading) {
             // This can happen if a fatal error occurs in parent::load().
@@ -59,7 +62,7 @@ class DelegatingLoader extends BaseDelegatingLoader
             // - this handles the case and prevents the second fatal error
             //   by triggering an exception beforehand.
 
-            throw new LoaderLoadException($resource, null, null, null, $type);
+            throw new LoaderLoadException($resource, null, 0, null, $type);
         }
         $this->loading = true;
 
@@ -73,11 +76,14 @@ class DelegatingLoader extends BaseDelegatingLoader
             if ($this->defaultOptions) {
                 $route->setOptions($route->getOptions() + $this->defaultOptions);
             }
+            if ($this->defaultRequirements) {
+                $route->setRequirements($route->getRequirements() + $this->defaultRequirements);
+            }
             if (!\is_string($controller = $route->getDefault('_controller'))) {
                 continue;
             }
 
-            if (false !== strpos($controller, '::')) {
+            if (str_contains($controller, '::')) {
                 continue;
             }
 

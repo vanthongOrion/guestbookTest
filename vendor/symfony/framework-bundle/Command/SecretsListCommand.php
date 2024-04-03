@@ -30,11 +30,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 final class SecretsListCommand extends Command
 {
     protected static $defaultName = 'secrets:list';
+    protected static $defaultDescription = 'List all secrets';
 
     private $vault;
     private $localVault;
 
-    public function __construct(AbstractVault $vault, AbstractVault $localVault = null)
+    public function __construct(AbstractVault $vault, ?AbstractVault $localVault = null)
     {
         $this->vault = $vault;
         $this->localVault = $localVault;
@@ -45,7 +46,7 @@ final class SecretsListCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Lists all secrets.')
+            ->setDescription(self::$defaultDescription)
             ->addOption('reveal', 'r', InputOption::VALUE_NONE, 'Display decrypted values alongside names')
             ->setHelp(<<<'EOF'
 The <info>%command.name%</info> command list all stored secrets.

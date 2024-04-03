@@ -16,8 +16,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\DataCollector\RouterDataCollector as BaseRouterDataCollector;
 
 /**
- * RouterDataCollector.
- *
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @final
@@ -30,7 +28,7 @@ class RouterDataCollector extends BaseRouterDataCollector
             $controller = $controller[0];
         }
 
-        if ($controller instanceof RedirectController) {
+        if ($controller instanceof RedirectController && $request->attributes->has('_route')) {
             return $request->attributes->get('_route');
         }
 

@@ -11,6 +11,7 @@
 
 namespace Symfony\Bundle\WebProfilerBundle\Controller;
 
+use Symfony\Component\ExpressionLanguage\ExpressionFunctionProviderInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\DataCollector\RequestDataCollector;
@@ -23,8 +24,6 @@ use Symfony\Component\Routing\RouterInterface;
 use Twig\Environment;
 
 /**
- * RouterController.
- *
  * @author Fabien Potencier <fabien@symfony.com>
  *
  * @internal
@@ -36,22 +35,26 @@ class RouterController
     private $matcher;
     private $routes;
 
-    public function __construct(Profiler $profiler = null, Environment $twig, UrlMatcherInterface $matcher = null, RouteCollection $routes = null)
+    /**
+     * @var ExpressionFunctionProviderInterface[]
+     */
+    private $expressionLanguageProviders = [];
+
+    public function __construct(?Profiler $profiler, Environment $twig, ?UrlMatcherInterface $matcher = null, ?RouteCollection $routes = null, iterable $expressionLanguageProviders = [])
     {
         $this->profiler = $profiler;
         $this->twig = $twig;
         $this->matcher = $matcher;
         $this->routes = (null === $routes && $matcher instanceof RouterInterface) ? $matcher->getRouteCollection() : $routes;
+        $this->expressionLanguageProviders = $expressionLanguageProviders;
     }
 
     /**
      * Renders the profiler panel for the given token.
      *
-     * @return Response A Response instance
-     *
      * @throws NotFoundHttpException
      */
-    public function panelAction(string $token)
+    public function panelAction(string $token): Response
     {
         if (null === $this->profiler) {
             throw new NotFoundHttpException('The profiler must be enabled.');
@@ -83,7 +86,7 @@ class RouterController
         $traceRequest = Request::create(
             $request->getPathInfo(),
             $request->getRequestServer(true)->get('REQUEST_METHOD'),
-            [],
+            \in_array($request->getMethod(), ['DELETE', 'PATCH', 'POST', 'PUT'], true) ? $request->getRequestRequest()->all() : $request->getRequestQuery()->all(),
             $request->getRequestCookies(true)->all(),
             [],
             $request->getRequestServer(true)->all()
@@ -92,6 +95,9 @@ class RouterController
         $context = $this->matcher->getContext();
         $context->setMethod($method);
         $matcher = new TraceableUrlMatcher($this->routes, $context);
+        foreach ($this->expressionLanguageProviders as $provider) {
+            $matcher->addExpressionLanguageProvider($provider);
+        }
 
         return $matcher->getTracesForRequest($traceRequest);
     }
