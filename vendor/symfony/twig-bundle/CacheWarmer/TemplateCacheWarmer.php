@@ -37,6 +37,8 @@ class TemplateCacheWarmer implements CacheWarmerInterface, ServiceSubscriberInte
 
     /**
      * {@inheritdoc}
+     *
+     * @return string[] A list of template files to preload on PHP 7.4+
      */
     public function warmUp(string $cacheDir)
     {
@@ -44,14 +46,28 @@ class TemplateCacheWarmer implements CacheWarmerInterface, ServiceSubscriberInte
             $this->twig = $this->container->get('twig');
         }
 
+        $files = [];
+
         foreach ($this->iterator as $template) {
             try {
-                $this->twig->load($template);
+                $template = $this->twig->load($template);
+
+                if (\is_callable([$template, 'unwrap'])) {
+                    $files[] = (new \ReflectionClass($template->unwrap()))->getFileName();
+                }
             } catch (Error $e) {
-                // problem during compilation, give up
-                // might be a syntax error or a non-Twig template
+                /*
+                 * Problem during compilation, give up for this template (e.g. syntax errors).
+                 * Failing silently here allows to ignore templates that rely on functions that aren't available in
+                 * the current environment. For example, the WebProfilerBundle shouldn't be available in the prod
+                 * environment, but some templates that are never used in prod might rely on functions the bundle provides.
+                 * As we can't detect which templates are "really" important, we try to load all of them and ignore
+                 * errors. Error checks may be performed by calling the lint:twig command.
+                 */
             }
         }
+
+        return $files;
     }
 
     /**

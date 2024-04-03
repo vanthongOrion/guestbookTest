@@ -14,11 +14,16 @@ namespace Symfony\Component\Routing;
 use Symfony\Component\Config\Exception\LoaderLoadException;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Config\Resource\ResourceInterface;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
+
+trigger_deprecation('symfony/routing', '5.1', 'The "%s" class is deprecated, use "%s" instead.', RouteCollectionBuilder::class, RoutingConfigurator::class);
 
 /**
  * Helps add and import routes into a RouteCollection.
  *
  * @author Ryan Weaver <ryan@knpuniversity.com>
+ *
+ * @deprecated since Symfony 5.1, use RoutingConfigurator instead
  */
 class RouteCollectionBuilder
 {
@@ -38,7 +43,7 @@ class RouteCollectionBuilder
     private $methods;
     private $resources = [];
 
-    public function __construct(LoaderInterface $loader = null)
+    public function __construct(?LoaderInterface $loader = null)
     {
         $this->loader = $loader;
     }
@@ -54,7 +59,7 @@ class RouteCollectionBuilder
      *
      * @throws LoaderLoadException
      */
-    public function import($resource, string $prefix = '/', string $type = null)
+    public function import($resource, string $prefix = '/', ?string $type = null)
     {
         /** @var RouteCollection[] $collections */
         $collections = $this->load($resource, $type);
@@ -87,7 +92,7 @@ class RouteCollectionBuilder
      *
      * @return Route
      */
-    public function add(string $path, string $controller, string $name = null)
+    public function add(string $path, string $controller, ?string $name = null)
     {
         $route = new Route($path);
         $route->setDefault('_controller', $controller);
@@ -120,7 +125,7 @@ class RouteCollectionBuilder
      *
      * @return $this
      */
-    public function addRoute(Route $route, string $name = null)
+    public function addRoute(Route $route, ?string $name = null)
     {
         if (null === $name) {
             // used as a flag to know which routes will need a name later
@@ -332,7 +337,7 @@ class RouteCollectionBuilder
      *
      * @throws LoaderLoadException If no loader is found
      */
-    private function load($resource, string $type = null): array
+    private function load($resource, ?string $type = null): array
     {
         if (null === $this->loader) {
             throw new \BadMethodCallException('Cannot import other routing resources: you must pass a LoaderInterface when constructing RouteCollectionBuilder.');
@@ -345,11 +350,11 @@ class RouteCollectionBuilder
         }
 
         if (null === $resolver = $this->loader->getResolver()) {
-            throw new LoaderLoadException($resource, null, null, null, $type);
+            throw new LoaderLoadException($resource, null, 0, null, $type);
         }
 
         if (false === $loader = $resolver->resolve($resource, $type)) {
-            throw new LoaderLoadException($resource, null, null, null, $type);
+            throw new LoaderLoadException($resource, null, 0, null, $type);
         }
 
         $collections = $loader->load($resource, $type);

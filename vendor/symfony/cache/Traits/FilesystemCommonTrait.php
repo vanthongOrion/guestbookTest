@@ -38,7 +38,7 @@ trait FilesystemCommonTrait
         } else {
             $directory .= \DIRECTORY_SEPARATOR.'@';
         }
-        if (!file_exists($directory)) {
+        if (!is_dir($directory)) {
             @mkdir($directory, 0777, true);
         }
         $directory .= \DIRECTORY_SEPARATOR;
@@ -58,7 +58,7 @@ trait FilesystemCommonTrait
         $ok = true;
 
         foreach ($this->scanHashDir($this->directory) as $file) {
-            if ('' !== $namespace && 0 !== strpos($this->getFileKey($file), $namespace)) {
+            if ('' !== $namespace && !str_starts_with($this->getFileKey($file), $namespace)) {
                 continue;
             }
 
@@ -77,43 +77,63 @@ trait FilesystemCommonTrait
 
         foreach ($ids as $id) {
             $file = $this->getFile($id);
-            $ok = (!file_exists($file) || $this->doUnlink($file) || !file_exists($file)) && $ok;
+            $ok = (!is_file($file) || $this->doUnlink($file) || !file_exists($file)) && $ok;
         }
 
         return $ok;
     }
 
-    protected function doUnlink($file)
+    protected function doUnlink(string $file)
     {
         return @unlink($file);
     }
 
-    private function write(string $file, string $data, int $expiresAt = null)
+    private function write(string $file, string $data, ?int $expiresAt = null)
     {
+        $unlink = false;
         set_error_handler(__CLASS__.'::throwError');
         try {
             if (null === $this->tmp) {
-                $this->tmp = $this->directory.uniqid('', true);
+                $this->tmp = $this->directory.bin2hex(random_bytes(6));
             }
-            file_put_contents($this->tmp, $data);
+            try {
+                $h = fopen($this->tmp, 'x');
+            } catch (\ErrorException $e) {
+                if (!str_contains($e->getMessage(), 'File exists')) {
+                    throw $e;
+                }
+
+                $this->tmp = $this->directory.bin2hex(random_bytes(6));
+                $h = fopen($this->tmp, 'x');
+            }
+            fwrite($h, $data);
+            fclose($h);
+            $unlink = true;
 
             if (null !== $expiresAt) {
-                touch($this->tmp, $expiresAt);
+                touch($this->tmp, $expiresAt ?: time() + 31556952); // 1 year in seconds
             }
 
-            return rename($this->tmp, $file);
+            $success = rename($this->tmp, $file);
+            $unlink = !$success;
+
+            return $success;
         } finally {
             restore_error_handler();
+
+            if ($unlink) {
+                @unlink($this->tmp);
+            }
         }
     }
 
-    private function getFile(string $id, bool $mkdir = false, string $directory = null)
+    private function getFile(string $id, bool $mkdir = false, ?string $directory = null)
     {
         // Use MD5 to favor speed over security, which is not an issue here
         $hash = str_replace('/', '-', base64_encode(hash('md5', static::class.$id, true)));
         $dir = ($directory ?? $this->directory).strtoupper($hash[0].\DIRECTORY_SEPARATOR.$hash[1].\DIRECTORY_SEPARATOR);
 
-        if ($mkdir && !file_exists($dir)) {
+        if ($mkdir && !is_dir($dir)) {
             @mkdir($dir, 0777, true);
         }
 
@@ -127,23 +147,23 @@ trait FilesystemCommonTrait
 
     private function scanHashDir(string $directory): \Generator
     {
-        if (!file_exists($directory)) {
+        if (!is_dir($directory)) {
             return;
         }
 
         $chars = '+-ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
         for ($i = 0; $i < 38; ++$i) {
-            if (!file_exists($directory.$chars[$i])) {
+            if (!is_dir($directory.$chars[$i])) {
                 continue;
             }
 
             for ($j = 0; $j < 38; ++$j) {
-                if (!file_exists($dir = $directory.$chars[$i].\DIRECTORY_SEPARATOR.$chars[$j])) {
+                if (!is_dir($dir = $directory.$chars[$i].\DIRECTORY_SEPARATOR.$chars[$j])) {
                     continue;
                 }
 
-                foreach (@scandir($dir, SCANDIR_SORT_NONE) ?: [] as $file) {
+                foreach (@scandir($dir, \SCANDIR_SORT_NONE) ?: [] as $file) {
                     if ('.' !== $file && '..' !== $file) {
                         yield $dir.\DIRECTORY_SEPARATOR.$file;
                     }
@@ -155,7 +175,7 @@ trait FilesystemCommonTrait
     /**
      * @internal
      */
-    public static function throwError($type, $message, $file, $line)
+    public static function throwError(int $type, string $message, string $file, int $line)
     {
         throw new \ErrorException($message, 0, $type, $file, $line);
     }
@@ -178,7 +198,7 @@ trait FilesystemCommonTrait
         if (method_exists(parent::class, '__destruct')) {
             parent::__destruct();
         }
-        if (null !== $this->tmp && file_exists($this->tmp)) {
+        if (null !== $this->tmp && is_file($this->tmp)) {
             unlink($this->tmp);
         }
     }

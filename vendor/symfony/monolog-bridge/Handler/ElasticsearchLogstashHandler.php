@@ -20,6 +20,7 @@ use Monolog\Logger;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\Exception\ExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * Push logs directly to Elasticsearch and format them according to Logstash specification.
@@ -41,18 +42,23 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 class ElasticsearchLogstashHandler extends AbstractHandler
 {
-    use ProcessableHandlerTrait;
     use FormattableHandlerTrait;
+    use ProcessableHandlerTrait;
 
     private $endpoint;
     private $index;
     private $client;
+
+    /**
+     * @var \SplObjectStorage<ResponseInterface, null>
+     */
     private $responses;
+    private $elasticsearchVersion;
 
     /**
      * @param string|int $level The minimum logging level at which this handler will be triggered
      */
-    public function __construct(string $endpoint = 'http://127.0.0.1:9200', string $index = 'monolog', HttpClientInterface $client = null, $level = Logger::DEBUG, bool $bubble = true)
+    public function __construct(string $endpoint = 'http://127.0.0.1:9200', string $index = 'monolog', ?HttpClientInterface $client = null, $level = Logger::DEBUG, bool $bubble = true, string $elasticsearchVersion = '1.0.0')
     {
         if (!interface_exists(HttpClientInterface::class)) {
             throw new \LogicException(sprintf('The "%s" handler needs an HTTP client. Try running "composer require symfony/http-client".', __CLASS__));
@@ -63,6 +69,7 @@ class ElasticsearchLogstashHandler extends AbstractHandler
         $this->index = $index;
         $this->client = $client ?: HttpClient::create(['timeout' => 1]);
         $this->responses = new \SplObjectStorage();
+        $this->elasticsearchVersion = $elasticsearchVersion;
     }
 
     public function handle(array $record): bool
@@ -100,18 +107,28 @@ class ElasticsearchLogstashHandler extends AbstractHandler
     {
         $formatter = $this->getFormatter();
 
+        if (version_compare($this->elasticsearchVersion, '7', '>=')) {
+            $headers = json_encode([
+                'index' => [
+                    '_index' => $this->index,
+                ],
+            ]);
+        } else {
+            $headers = json_encode([
+                'index' => [
+                    '_index' => $this->index,
+                    '_type' => '_doc',
+                ],
+            ]);
+        }
+
         $body = '';
         foreach ($records as $record) {
             foreach ($this->processors as $processor) {
                 $record = $processor($record);
             }
 
-            $body .= json_encode([
-                'index' => [
-                    '_index' => $this->index,
-                    '_type' => '_doc',
-                ],
-            ]);
+            $body .= $headers;
             $body .= "\n";
             $body .= $formatter->format($record);
             $body .= "\n";
@@ -127,6 +144,19 @@ class ElasticsearchLogstashHandler extends AbstractHandler
         $this->responses->attach($response);
 
         $this->wait(false);
+    }
+
+    /**
+     * @return array
+     */
+    public function __sleep()
+    {
+        throw new \BadMethodCallException('Cannot serialize '.__CLASS__);
+    }
+
+    public function __wakeup()
+    {
+        throw new \BadMethodCallException('Cannot unserialize '.__CLASS__);
     }
 
     public function __destruct()

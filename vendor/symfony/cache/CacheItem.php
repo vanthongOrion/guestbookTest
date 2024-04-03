@@ -43,6 +43,8 @@ final class CacheItem implements ItemInterface
 
     /**
      * {@inheritdoc}
+     *
+     * @return mixed
      */
     public function get()
     {
@@ -81,7 +83,7 @@ final class CacheItem implements ItemInterface
         } elseif ($expiration instanceof \DateTimeInterface) {
             $this->expiry = (float) $expiration->format('U.u');
         } else {
-            throw new InvalidArgumentException(sprintf('Expiration date must implement DateTimeInterface or be null, "%s" given.', \is_object($expiration) ? \get_class($expiration) : \gettype($expiration)));
+            throw new InvalidArgumentException(sprintf('Expiration date must implement DateTimeInterface or be null, "%s" given.', get_debug_type($expiration)));
         }
 
         return $this;
@@ -101,7 +103,7 @@ final class CacheItem implements ItemInterface
         } elseif (\is_int($time)) {
             $this->expiry = $time + microtime(true);
         } else {
-            throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given.', \is_object($time) ? \get_class($time) : \gettype($time)));
+            throw new InvalidArgumentException(sprintf('Expiration date must be an integer, a DateInterval or null, "%s" given.', get_debug_type($time)));
         }
 
         return $this;
@@ -119,9 +121,10 @@ final class CacheItem implements ItemInterface
             $tags = [$tags];
         }
         foreach ($tags as $tag) {
-            if (!\is_string($tag)) {
-                throw new InvalidArgumentException(sprintf('Cache tag must be string, "%s" given.', \is_object($tag) ? \get_class($tag) : \gettype($tag)));
+            if (!\is_string($tag) && !(\is_object($tag) && method_exists($tag, '__toString'))) {
+                throw new InvalidArgumentException(sprintf('Cache tag must be string or object that implements __toString(), "%s" given.', \is_object($tag) ? \get_class($tag) : \gettype($tag)));
             }
+            $tag = (string) $tag;
             if (isset($this->newMetadata[self::METADATA_TAGS][$tag])) {
                 continue;
             }
@@ -148,14 +151,14 @@ final class CacheItem implements ItemInterface
     /**
      * Validates a cache key according to PSR-6.
      *
-     * @param string $key The key to validate
+     * @param mixed $key The key to validate
      *
      * @throws InvalidArgumentException When $key is not valid
      */
     public static function validateKey($key): string
     {
         if (!\is_string($key)) {
-            throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', \is_object($key) ? \get_class($key) : \gettype($key)));
+            throw new InvalidArgumentException(sprintf('Cache key must be string, "%s" given.', get_debug_type($key)));
         }
         if ('' === $key) {
             throw new InvalidArgumentException('Cache key length must be greater than zero.');
@@ -179,11 +182,11 @@ final class CacheItem implements ItemInterface
         } else {
             $replace = [];
             foreach ($context as $k => $v) {
-                if (is_scalar($v)) {
+                if (\is_scalar($v)) {
                     $replace['{'.$k.'}'] = $v;
                 }
             }
-            @trigger_error(strtr($message, $replace), E_USER_WARNING);
+            @trigger_error(strtr($message, $replace), \E_USER_WARNING);
         }
     }
 }

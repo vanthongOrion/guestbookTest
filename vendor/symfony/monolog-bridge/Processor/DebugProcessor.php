@@ -23,7 +23,7 @@ class DebugProcessor implements DebugLoggerInterface, ResetInterface
     private $errorCount = [];
     private $requestStack;
 
-    public function __construct(RequestStack $requestStack = null)
+    public function __construct(?RequestStack $requestStack = null)
     {
         $this->requestStack = $requestStack;
     }
@@ -32,13 +32,22 @@ class DebugProcessor implements DebugLoggerInterface, ResetInterface
     {
         $hash = $this->requestStack && ($request = $this->requestStack->getCurrentRequest()) ? spl_object_hash($request) : '';
 
+        $timestamp = $timestampRfc3339 = false;
+        if ($record['datetime'] instanceof \DateTimeInterface) {
+            $timestamp = $record['datetime']->getTimestamp();
+            $timestampRfc3339 = $record['datetime']->format(\DateTimeInterface::RFC3339_EXTENDED);
+        } elseif (false !== $timestamp = strtotime($record['datetime'])) {
+            $timestampRfc3339 = (new \DateTimeImmutable($record['datetime']))->format(\DateTimeInterface::RFC3339_EXTENDED);
+        }
+
         $this->records[$hash][] = [
-            'timestamp' => $record['datetime'] instanceof \DateTimeInterface ? $record['datetime']->getTimestamp() : strtotime($record['datetime']),
+            'timestamp' => $timestamp,
+            'timestamp_rfc3339' => $timestampRfc3339,
             'message' => $record['message'],
             'priority' => $record['level'],
             'priorityName' => $record['level_name'],
             'context' => $record['context'],
-            'channel' => isset($record['channel']) ? $record['channel'] : '',
+            'channel' => $record['channel'] ?? '',
         ];
 
         if (!isset($this->errorCount[$hash])) {
@@ -59,7 +68,7 @@ class DebugProcessor implements DebugLoggerInterface, ResetInterface
     /**
      * {@inheritdoc}
      */
-    public function getLogs(Request $request = null)
+    public function getLogs(?Request $request = null)
     {
         if (null !== $request) {
             return $this->records[spl_object_hash($request)] ?? [];
@@ -75,7 +84,7 @@ class DebugProcessor implements DebugLoggerInterface, ResetInterface
     /**
      * {@inheritdoc}
      */
-    public function countErrors(Request $request = null)
+    public function countErrors(?Request $request = null)
     {
         if (null !== $request) {
             return $this->errorCount[spl_object_hash($request)] ?? 0;

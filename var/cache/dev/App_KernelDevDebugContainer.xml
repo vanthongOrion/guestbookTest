@@ -3,7 +3,9 @@
   <parameters>
     <parameter key="kernel.project_dir">/var/guestbook/guestbook</parameter>
     <parameter key="kernel.environment">dev</parameter>
+    <parameter key="kernel.runtime_environment">%env(default:kernel.environment:APP_RUNTIME_ENV)%</parameter>
     <parameter key="kernel.debug">true</parameter>
+    <parameter key="kernel.build_dir">/var/guestbook/guestbook/var/cache/dev</parameter>
     <parameter key="kernel.cache_dir">/var/guestbook/guestbook/var/cache/dev</parameter>
     <parameter key="kernel.logs_dir">/var/guestbook/guestbook/var/log</parameter>
     <parameter key="kernel.bundles" type="collection">
@@ -181,17 +183,24 @@
     <service id="kernel" class="App\Kernel" public="true" synthetic="true">
       <tag name="routing.route_loader"/>
     </service>
-    <service id="argument_metadata_factory" class="Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory" public="false"/>
-    <service id="response_listener" class="Symfony\Component\HttpKernel\EventListener\ResponseListener" public="false">
+    <service id="App\Controller\ConferenceController" class="App\Controller\ConferenceController" public="true" autowire="true" autoconfigure="true">
+      <tag name="controller.service_arguments"/>
+      <tag name="container.service_subscriber"/>
+      <call method="setContainer">
+        <argument type="service" id=".service_locator.Ejq_DCG.App\Controller\ConferenceController"/>
+      </call>
+    </service>
+    <service id="argument_metadata_factory" class="Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory"/>
+    <service id="response_listener" class="Symfony\Component\HttpKernel\EventListener\ResponseListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
       <argument>UTF-8</argument>
     </service>
-    <service id="streamed_response_listener" class="Symfony\Component\HttpKernel\EventListener\StreamedResponseListener" public="false">
+    <service id="streamed_response_listener" class="Symfony\Component\HttpKernel\EventListener\StreamedResponseListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
     </service>
-    <service id="locale_listener" class="Symfony\Component\HttpKernel\EventListener\LocaleListener" public="false">
+    <service id="locale_listener" class="Symfony\Component\HttpKernel\EventListener\LocaleListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
@@ -200,11 +209,11 @@
       <argument>en</argument>
       <argument type="service" id="router.default" on-invalid="ignore"/>
     </service>
-    <service id="validate_request_listener" class="Symfony\Component\HttpKernel\EventListener\ValidateRequestListener" public="false">
+    <service id="validate_request_listener" class="Symfony\Component\HttpKernel\EventListener\ValidateRequestListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
     </service>
-    <service id="disallow_search_engine_index_response_listener" class="Symfony\Component\HttpKernel\EventListener\DisallowRobotsIndexingListener" public="false">
+    <service id="disallow_search_engine_index_response_listener" class="Symfony\Component\HttpKernel\EventListener\DisallowRobotsIndexingListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
     </service>
@@ -213,15 +222,16 @@
       <argument>error_controller</argument>
       <argument type="service" id="twig.error_renderer.html"/>
     </service>
-    <service id="exception_listener" class="Symfony\Component\HttpKernel\EventListener\ErrorListener" public="false">
+    <service id="exception_listener" class="Symfony\Component\HttpKernel\EventListener\ErrorListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="monolog.logger" channel="request"/>
+      <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <argument>error_controller</argument>
       <argument type="service" id="monolog.logger.request" on-invalid="null"/>
       <argument>true</argument>
     </service>
-    <service id="parameter_bag" class="Symfony\Component\DependencyInjection\ParameterBag\ContainerBag" public="false">
+    <service id="parameter_bag" class="Symfony\Component\DependencyInjection\ParameterBag\ContainerBag">
       <argument type="service" id="service_container"/>
     </service>
     <service id="http_kernel" class="Symfony\Component\HttpKernel\HttpKernel" public="true">
@@ -232,7 +242,7 @@
       <argument type="service" id="debug.argument_resolver"/>
     </service>
     <service id="request_stack" class="Symfony\Component\HttpFoundation\RequestStack" public="true"/>
-    <service id="url_helper" class="Symfony\Component\HttpFoundation\UrlHelper" public="false">
+    <service id="url_helper" class="Symfony\Component\HttpFoundation\UrlHelper">
       <argument type="service" id="request_stack"/>
       <argument type="service" id="router.request_context" on-invalid="ignore"/>
     </service>
@@ -245,20 +255,20 @@
       <argument type="tagged_iterator" tag="kernel.cache_clearer"/>
     </service>
     <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem" public="true"/>
-    <service id="file_locator" class="Symfony\Component\HttpKernel\Config\FileLocator" public="false">
+    <service id="file_locator" class="Symfony\Component\HttpKernel\Config\FileLocator">
       <argument type="service" id="kernel"/>
     </service>
-    <service id="uri_signer" class="Symfony\Component\HttpKernel\UriSigner" public="false">
+    <service id="uri_signer" class="Symfony\Component\HttpKernel\UriSigner">
       <argument>%env(APP_SECRET)%</argument>
     </service>
-    <service id="config_cache_factory" class="Symfony\Component\Config\ResourceCheckerConfigCacheFactory" public="false">
+    <service id="config_cache_factory" class="Symfony\Component\Config\ResourceCheckerConfigCacheFactory">
       <argument type="tagged_iterator" tag="config_cache.resource_checker"/>
     </service>
-    <service id="dependency_injection.config.container_parameters_resource_checker" class="Symfony\Component\DependencyInjection\Config\ContainerParametersResourceChecker" public="false">
+    <service id="dependency_injection.config.container_parameters_resource_checker" class="Symfony\Component\DependencyInjection\Config\ContainerParametersResourceChecker">
       <tag name="config_cache.resource_checker" priority="-980"/>
       <argument type="service" id="service_container"/>
     </service>
-    <service id="config.resource.self_checking_resource_checker" class="Symfony\Component\Config\Resource\SelfCheckingResourceChecker" public="false">
+    <service id="config.resource.self_checking_resource_checker" class="Symfony\Component\Config\Resource\SelfCheckingResourceChecker">
       <tag name="config_cache.resource_checker" priority="-990"/>
     </service>
     <service id="services_resetter" class="Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter" public="true">
@@ -311,22 +321,34 @@
         </argument>
       </argument>
     </service>
-    <service id="reverse_container" class="Symfony\Component\DependencyInjection\ReverseContainer" public="false">
+    <service id="reverse_container" class="Symfony\Component\DependencyInjection\ReverseContainer">
       <argument type="service" id="service_container"/>
-      <argument type="service" id=".service_locator.wnlveDj"/>
+      <argument type="service" id=".service_locator.XXv1IfR"/>
     </service>
-    <service id="container.env_var_processor" class="Symfony\Component\DependencyInjection\EnvVarProcessor" public="false">
+    <service id="locale_aware_listener" class="Symfony\Component\HttpKernel\EventListener\LocaleAwareListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="container.hot_path"/>
+      <tag name="container.hot_path"/>
+      <argument type="iterator">
+        <argument type="service" id="slugger"/>
+      </argument>
+      <argument type="service" id="request_stack"/>
+    </service>
+    <service id="container.env_var_processor" class="Symfony\Component\DependencyInjection\EnvVarProcessor">
       <tag name="container.env_var_processor"/>
       <argument type="service" id="service_container"/>
       <argument type="tagged_iterator" tag="container.env_var_loader"/>
     </service>
-    <service id="slugger" class="stdClass"/>
-    <service id="fragment.handler" class="Symfony\Component\HttpKernel\DependencyInjection\LazyLoadingFragmentHandler" public="false">
-      <argument type="service" id=".service_locator._cmka45"/>
+    <service id="slugger" class="Symfony\Component\String\Slugger\AsciiSlugger">
+      <tag name="kernel.locale_aware"/>
+      <argument>en</argument>
+    </service>
+    <service id="fragment.handler" class="Symfony\Component\HttpKernel\DependencyInjection\LazyLoadingFragmentHandler">
+      <argument type="service" id=".service_locator.lLv4pWF"/>
       <argument type="service" id="request_stack"/>
       <argument>true</argument>
     </service>
-    <service id="fragment.renderer.inline" class="Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer" public="false">
+    <service id="fragment.renderer.inline" class="Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer">
       <tag name="kernel.fragment_renderer" alias="inline"/>
       <argument type="service" id="http_kernel"/>
       <argument type="service" id="debug.event_dispatcher"/>
@@ -334,11 +356,11 @@
         <argument>/_fragment</argument>
       </call>
     </service>
-    <service id=".2_~rXPHy_h" public="false">
+    <service id=".2_~rXPHy_h">
       <argument type="service" id="request_stack"/>
       <factory class="Symfony\Component\ErrorHandler\ErrorRenderer\HtmlErrorRenderer" method="getAndCleanOutputBuffer"/>
     </service>
-    <service id=".1_~rXPHy_h" public="false">
+    <service id=".1_~rXPHy_h">
       <argument type="service" id="request_stack"/>
       <argument>true</argument>
       <factory class="Symfony\Component\ErrorHandler\ErrorRenderer\HtmlErrorRenderer" method="isDebug"/>
@@ -351,59 +373,82 @@
       <argument type="service" id=".2_~rXPHy_h"/>
       <argument type="service" id="monolog.logger" on-invalid="null"/>
     </service>
-    <service id="console.error_listener" class="Symfony\Component\Console\EventListener\ErrorListener" public="false">
+    <service id="console.error_listener" class="Symfony\Component\Console\EventListener\ErrorListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="monolog.logger" channel="console"/>
       <argument type="service" id="monolog.logger.console" on-invalid="null"/>
     </service>
-    <service id="console.suggest_missing_package_subscriber" class="Symfony\Bundle\FrameworkBundle\EventListener\SuggestMissingPackageSubscriber" public="false">
+    <service id="console.suggest_missing_package_subscriber" class="Symfony\Bundle\FrameworkBundle\EventListener\SuggestMissingPackageSubscriber">
       <tag name="kernel.event_subscriber"/>
     </service>
-    <service id="console.command.about" class="Symfony\Bundle\FrameworkBundle\Command\AboutCommand" public="false">
+    <service id="console.command.about" class="Symfony\Bundle\FrameworkBundle\Command\AboutCommand">
       <tag name="console.command" command="about"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>about</argument>
       </call>
     </service>
-    <service id="console.command.assets_install" class="Symfony\Bundle\FrameworkBundle\Command\AssetsInstallCommand" public="false">
+    <service id="console.command.assets_install" class="Symfony\Bundle\FrameworkBundle\Command\AssetsInstallCommand">
       <tag name="console.command" command="assets:install"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="filesystem"/>
       <argument>/var/guestbook/guestbook</argument>
       <call method="setName">
         <argument>assets:install</argument>
       </call>
     </service>
-    <service id="console.command.cache_clear" class="Symfony\Bundle\FrameworkBundle\Command\CacheClearCommand" public="false">
+    <service id="console.command.cache_clear" class="Symfony\Bundle\FrameworkBundle\Command\CacheClearCommand">
       <tag name="console.command" command="cache:clear"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="cache_clearer"/>
       <argument type="service" id="filesystem"/>
       <call method="setName">
         <argument>cache:clear</argument>
       </call>
     </service>
-    <service id="console.command.cache_pool_clear" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolClearCommand" public="false">
+    <service id="console.command.cache_pool_clear" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolClearCommand">
       <tag name="console.command" command="cache:pool:clear"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="cache.global_clearer"/>
+      <argument type="collection">
+        <argument>cache.app</argument>
+        <argument>cache.system</argument>
+        <argument>cache.validator</argument>
+        <argument>cache.serializer</argument>
+        <argument>cache.annotations</argument>
+        <argument>cache.property_info</argument>
+      </argument>
       <call method="setName">
         <argument>cache:pool:clear</argument>
       </call>
     </service>
-    <service id="console.command.cache_pool_prune" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolPruneCommand" public="false">
+    <service id="console.command.cache_pool_prune" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolPruneCommand">
       <tag name="console.command" command="cache:pool:prune"/>
+      <tag name="container.no_preload"/>
       <argument type="iterator"/>
       <call method="setName">
         <argument>cache:pool:prune</argument>
       </call>
     </service>
-    <service id="console.command.cache_pool_delete" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolDeleteCommand" public="false">
+    <service id="console.command.cache_pool_delete" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolDeleteCommand">
       <tag name="console.command" command="cache:pool:delete"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="cache.global_clearer"/>
+      <argument type="collection">
+        <argument>cache.app</argument>
+        <argument>cache.system</argument>
+        <argument>cache.validator</argument>
+        <argument>cache.serializer</argument>
+        <argument>cache.annotations</argument>
+        <argument>cache.property_info</argument>
+      </argument>
       <call method="setName">
         <argument>cache:pool:delete</argument>
       </call>
     </service>
-    <service id="console.command.cache_pool_list" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolListCommand" public="false">
+    <service id="console.command.cache_pool_list" class="Symfony\Bundle\FrameworkBundle\Command\CachePoolListCommand">
       <tag name="console.command" command="cache:pool:list"/>
+      <tag name="container.no_preload"/>
       <argument type="collection">
         <argument>cache.app</argument>
         <argument>cache.system</argument>
@@ -416,115 +461,131 @@
         <argument>cache:pool:list</argument>
       </call>
     </service>
-    <service id="console.command.cache_warmup" class="Symfony\Bundle\FrameworkBundle\Command\CacheWarmupCommand" public="false">
+    <service id="console.command.cache_warmup" class="Symfony\Bundle\FrameworkBundle\Command\CacheWarmupCommand">
       <tag name="console.command" command="cache:warmup"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="cache_warmer"/>
       <call method="setName">
         <argument>cache:warmup</argument>
       </call>
     </service>
-    <service id="console.command.config_debug" class="Symfony\Bundle\FrameworkBundle\Command\ConfigDebugCommand" public="false">
+    <service id="console.command.config_debug" class="Symfony\Bundle\FrameworkBundle\Command\ConfigDebugCommand">
       <tag name="console.command" command="debug:config"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>debug:config</argument>
       </call>
     </service>
-    <service id="console.command.config_dump_reference" class="Symfony\Bundle\FrameworkBundle\Command\ConfigDumpReferenceCommand" public="false">
+    <service id="console.command.config_dump_reference" class="Symfony\Bundle\FrameworkBundle\Command\ConfigDumpReferenceCommand">
       <tag name="console.command" command="config:dump-reference"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>config:dump-reference</argument>
       </call>
     </service>
-    <service id="console.command.container_debug" class="Symfony\Bundle\FrameworkBundle\Command\ContainerDebugCommand" public="false">
+    <service id="console.command.container_debug" class="Symfony\Bundle\FrameworkBundle\Command\ContainerDebugCommand">
       <tag name="console.command" command="debug:container"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>debug:container</argument>
       </call>
     </service>
-    <service id="console.command.container_lint" class="Symfony\Bundle\FrameworkBundle\Command\ContainerLintCommand" public="false">
+    <service id="console.command.container_lint" class="Symfony\Bundle\FrameworkBundle\Command\ContainerLintCommand">
       <tag name="console.command" command="lint:container"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>lint:container</argument>
       </call>
     </service>
-    <service id="console.command.debug_autowiring" class="Symfony\Bundle\FrameworkBundle\Command\DebugAutowiringCommand" public="false">
+    <service id="console.command.debug_autowiring" class="Symfony\Bundle\FrameworkBundle\Command\DebugAutowiringCommand">
       <tag name="console.command" command="debug:autowiring"/>
+      <tag name="container.no_preload"/>
       <argument>null</argument>
       <argument type="service" id="debug.file_link_formatter" on-invalid="null"/>
       <call method="setName">
         <argument>debug:autowiring</argument>
       </call>
     </service>
-    <service id="console.command.event_dispatcher_debug" class="Symfony\Bundle\FrameworkBundle\Command\EventDispatcherDebugCommand" public="false">
+    <service id="console.command.event_dispatcher_debug" class="Symfony\Bundle\FrameworkBundle\Command\EventDispatcherDebugCommand">
       <tag name="console.command" command="debug:event-dispatcher"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="debug.event_dispatcher"/>
       <call method="setName">
         <argument>debug:event-dispatcher</argument>
       </call>
     </service>
-    <service id="console.command.router_debug" class="Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand" public="false">
+    <service id="console.command.router_debug" class="Symfony\Bundle\FrameworkBundle\Command\RouterDebugCommand">
       <tag name="console.command" command="debug:router"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="router.default"/>
       <argument type="service" id="debug.file_link_formatter" on-invalid="null"/>
       <call method="setName">
         <argument>debug:router</argument>
       </call>
     </service>
-    <service id="console.command.router_match" class="Symfony\Bundle\FrameworkBundle\Command\RouterMatchCommand" public="false">
+    <service id="console.command.router_match" class="Symfony\Bundle\FrameworkBundle\Command\RouterMatchCommand">
       <tag name="console.command" command="router:match"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="router.default"/>
       <call method="setName">
         <argument>router:match</argument>
       </call>
     </service>
-    <service id="console.command.yaml_lint" class="Symfony\Bundle\FrameworkBundle\Command\YamlLintCommand" public="false">
+    <service id="console.command.yaml_lint" class="Symfony\Bundle\FrameworkBundle\Command\YamlLintCommand">
       <tag name="console.command" command="lint:yaml"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>lint:yaml</argument>
       </call>
     </service>
-    <service id="console.command.secrets_set" class="Symfony\Bundle\FrameworkBundle\Command\SecretsSetCommand" public="false">
+    <service id="console.command.secrets_set" class="Symfony\Bundle\FrameworkBundle\Command\SecretsSetCommand">
       <tag name="console.command" command="secrets:set"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="secrets.vault"/>
       <argument type="service" id="secrets.local_vault" on-invalid="ignore"/>
       <call method="setName">
         <argument>secrets:set</argument>
       </call>
     </service>
-    <service id="console.command.secrets_remove" class="Symfony\Bundle\FrameworkBundle\Command\SecretsRemoveCommand" public="false">
+    <service id="console.command.secrets_remove" class="Symfony\Bundle\FrameworkBundle\Command\SecretsRemoveCommand">
       <tag name="console.command" command="secrets:remove"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="secrets.vault"/>
       <argument type="service" id="secrets.local_vault" on-invalid="ignore"/>
       <call method="setName">
         <argument>secrets:remove</argument>
       </call>
     </service>
-    <service id="console.command.secrets_generate_key" class="Symfony\Bundle\FrameworkBundle\Command\SecretsGenerateKeysCommand" public="false">
+    <service id="console.command.secrets_generate_key" class="Symfony\Bundle\FrameworkBundle\Command\SecretsGenerateKeysCommand">
       <tag name="console.command" command="secrets:generate-keys"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="secrets.vault"/>
       <argument type="service" id="secrets.local_vault" on-invalid="ignore"/>
       <call method="setName">
         <argument>secrets:generate-keys</argument>
       </call>
     </service>
-    <service id="console.command.secrets_list" class="Symfony\Bundle\FrameworkBundle\Command\SecretsListCommand" public="false">
+    <service id="console.command.secrets_list" class="Symfony\Bundle\FrameworkBundle\Command\SecretsListCommand">
       <tag name="console.command" command="secrets:list"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="secrets.vault"/>
       <argument type="service" id="secrets.local_vault" on-invalid="ignore"/>
       <call method="setName">
         <argument>secrets:list</argument>
       </call>
     </service>
-    <service id="console.command.secrets_decrypt_to_local" class="Symfony\Bundle\FrameworkBundle\Command\SecretsDecryptToLocalCommand" public="false">
+    <service id="console.command.secrets_decrypt_to_local" class="Symfony\Bundle\FrameworkBundle\Command\SecretsDecryptToLocalCommand">
       <tag name="console.command" command="secrets:decrypt-to-local"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="secrets.vault"/>
       <argument type="service" id="secrets.local_vault" on-invalid="ignore"/>
       <call method="setName">
         <argument>secrets:decrypt-to-local</argument>
       </call>
     </service>
-    <service id="console.command.secrets_encrypt_from_local" class="Symfony\Bundle\FrameworkBundle\Command\SecretsEncryptFromLocalCommand" public="false">
+    <service id="console.command.secrets_encrypt_from_local" class="Symfony\Bundle\FrameworkBundle\Command\SecretsEncryptFromLocalCommand">
       <tag name="console.command" command="secrets:encrypt-from-local"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="secrets.vault"/>
       <argument type="service" id="secrets.local_vault" on-invalid="ignore"/>
       <call method="setName">
@@ -536,7 +597,7 @@
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="cache.app.recorder_inner"/>
     </service>
-    <service id="cache.app.taggable" class="Symfony\Component\Cache\Adapter\TagAwareAdapter" public="false">
+    <service id="cache.app.taggable" class="Symfony\Component\Cache\Adapter\TagAwareAdapter">
       <argument type="service" id="cache.app"/>
     </service>
     <service id="cache.system" class="Symfony\Component\Cache\Adapter\TraceableAdapter" public="true">
@@ -544,27 +605,27 @@
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="cache.system.recorder_inner"/>
     </service>
-    <service id="cache.validator" class="Symfony\Component\Cache\Adapter\TraceableAdapter" public="false">
+    <service id="cache.validator" class="Symfony\Component\Cache\Adapter\TraceableAdapter">
       <tag name="cache.pool"/>
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="cache.validator.recorder_inner"/>
     </service>
-    <service id="cache.serializer" class="Symfony\Component\Cache\Adapter\TraceableAdapter" public="false">
+    <service id="cache.serializer" class="Symfony\Component\Cache\Adapter\TraceableAdapter">
       <tag name="cache.pool"/>
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="cache.serializer.recorder_inner"/>
     </service>
-    <service id="cache.annotations" class="Symfony\Component\Cache\Adapter\TraceableAdapter" public="false">
+    <service id="cache.annotations" class="Symfony\Component\Cache\Adapter\TraceableAdapter">
       <tag name="cache.pool"/>
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="cache.annotations.recorder_inner"/>
     </service>
-    <service id="cache.property_info" class="Symfony\Component\Cache\Adapter\TraceableAdapter" public="false">
+    <service id="cache.property_info" class="Symfony\Component\Cache\Adapter\TraceableAdapter">
       <tag name="cache.pool"/>
       <tag name="kernel.reset" method="reset"/>
       <argument type="service" id="cache.property_info.recorder_inner"/>
     </service>
-    <service id="cache.adapter.system" class="Symfony\Component\Cache\Adapter\AdapterInterface" public="false" abstract="true">
+    <service id="cache.adapter.system" class="Symfony\Component\Cache\Adapter\AdapterInterface" abstract="true">
       <tag name="cache.pool" clearer="cache.system_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -574,7 +635,7 @@
       <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
-    <service id="cache.adapter.apcu" class="Symfony\Component\Cache\Adapter\ApcuAdapter" public="false" abstract="true">
+    <service id="cache.adapter.apcu" class="Symfony\Component\Cache\Adapter\ApcuAdapter" abstract="true">
       <tag name="cache.pool" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -584,7 +645,7 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.adapter.doctrine" class="Symfony\Component\Cache\Adapter\DoctrineAdapter" public="false" abstract="true">
+    <service id="cache.adapter.doctrine" class="Symfony\Component\Cache\Adapter\DoctrineAdapter" abstract="true">
       <tag name="cache.pool" provider="cache.default_doctrine_provider" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -594,7 +655,7 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.adapter.filesystem" class="Symfony\Component\Cache\Adapter\FilesystemAdapter" public="false" abstract="true">
+    <service id="cache.adapter.filesystem" class="Symfony\Component\Cache\Adapter\FilesystemAdapter" abstract="true">
       <tag name="cache.pool" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -605,13 +666,13 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.adapter.psr6" class="Symfony\Component\Cache\Adapter\ProxyAdapter" public="false" abstract="true">
+    <service id="cache.adapter.psr6" class="Symfony\Component\Cache\Adapter\ProxyAdapter" abstract="true">
       <tag name="cache.pool" provider="cache.default_psr6_provider" clearer="cache.default_clearer" reset="reset"/>
       <argument></argument>
       <argument></argument>
       <argument>0</argument>
     </service>
-    <service id="cache.adapter.redis" class="Symfony\Component\Cache\Adapter\RedisAdapter" public="false" abstract="true">
+    <service id="cache.adapter.redis" class="Symfony\Component\Cache\Adapter\RedisAdapter" abstract="true">
       <tag name="cache.pool" provider="cache.default_redis_provider" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -622,7 +683,7 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.adapter.memcached" class="Symfony\Component\Cache\Adapter\MemcachedAdapter" public="false" abstract="true">
+    <service id="cache.adapter.memcached" class="Symfony\Component\Cache\Adapter\MemcachedAdapter" abstract="true">
       <tag name="cache.pool" provider="cache.default_memcached_provider" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -633,7 +694,7 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.adapter.pdo" class="Symfony\Component\Cache\Adapter\PdoAdapter" public="false" abstract="true">
+    <service id="cache.adapter.pdo" class="Symfony\Component\Cache\Adapter\PdoAdapter" abstract="true">
       <tag name="cache.pool" provider="cache.default_pdo_provider" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument></argument>
@@ -645,7 +706,7 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.adapter.array" class="Symfony\Component\Cache\Adapter\ArrayAdapter" public="false" abstract="true">
+    <service id="cache.adapter.array" class="Symfony\Component\Cache\Adapter\ArrayAdapter" abstract="true">
       <tag name="cache.pool" clearer="cache.default_clearer" reset="reset"/>
       <tag name="monolog.logger" channel="cache"/>
       <argument>0</argument>
@@ -653,10 +714,10 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.default_marshaller" class="Symfony\Component\Cache\Marshaller\DefaultMarshaller" public="false">
+    <service id="cache.default_marshaller" class="Symfony\Component\Cache\Marshaller\DefaultMarshaller">
       <argument>null</argument>
     </service>
-    <service id="cache.default_clearer" class="Symfony\Component\HttpKernel\CacheClearer\Psr6CacheClearer" public="false">
+    <service id="cache.default_clearer" class="Symfony\Component\HttpKernel\CacheClearer\Psr6CacheClearer">
       <tag name="cache.pool.clearer"/>
       <argument type="collection">
         <argument key="cache.app" type="service" id="cache.app" on-invalid="ignore_uninitialized"/>
@@ -684,64 +745,64 @@
         <argument key="cache.property_info" type="service" id="cache.property_info" on-invalid="ignore_uninitialized"/>
       </argument>
     </service>
-    <service id=".cache_connection.GD_MSZC" class="Symfony\Component\Cache\Adapter\AbstractAdapter" public="false">
+    <service id=".cache_connection.GD_MSZC" class="Symfony\Component\Cache\Adapter\AbstractAdapter">
       <argument>redis://localhost</argument>
       <argument type="collection">
         <argument key="lazy">true</argument>
       </argument>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createConnection"/>
     </service>
-    <service id=".cache_connection.JKE6keX" class="Symfony\Component\Cache\Adapter\AbstractAdapter" public="false">
+    <service id=".cache_connection.JKE6keX" class="Symfony\Component\Cache\Adapter\AbstractAdapter">
       <argument>memcached://localhost</argument>
       <argument type="collection">
         <argument key="lazy">true</argument>
       </argument>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createConnection"/>
     </service>
-    <service id=".1_NativeFileSessionHandler~i04Tucq" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler" public="false">
+    <service id=".1_NativeFileSessionHandler~i04Tucq" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\NativeFileSessionHandler">
       <argument>/var/guestbook/guestbook/var/cache/dev/sessions</argument>
     </service>
     <service id="session" class="Symfony\Component\HttpFoundation\Session\Session" public="true">
       <argument type="service" id="session.storage.native"/>
     </service>
-    <service id="session.storage.metadata_bag" class="Symfony\Component\HttpFoundation\Session\Storage\MetadataBag" public="false">
+    <service id="session.storage.metadata_bag" class="Symfony\Component\HttpFoundation\Session\Storage\MetadataBag">
       <argument>_sf2_meta</argument>
       <argument>0</argument>
     </service>
-    <service id="session.storage.native" class="Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage" public="false">
+    <service id="session.storage.native" class="Symfony\Component\HttpFoundation\Session\Storage\NativeSessionStorage">
       <argument>%session.storage.options%</argument>
       <argument>null</argument>
       <argument type="service" id="session.storage.metadata_bag"/>
     </service>
-    <service id="session.storage.php_bridge" class="Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage" public="false">
+    <service id="session.storage.php_bridge" class="Symfony\Component\HttpFoundation\Session\Storage\PhpBridgeSessionStorage">
       <argument>null</argument>
       <argument type="service" id="session.storage.metadata_bag"/>
     </service>
-    <service id="session.flash_bag" class="Symfony\Component\HttpFoundation\Session\Flash\FlashBag" public="false">
+    <service id="session.flash_bag" class="Symfony\Component\HttpFoundation\Session\Flash\FlashBag">
       <factory service="session" method="getFlashBag"/>
     </service>
-    <service id="session.attribute_bag" class="Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag" public="false">
+    <service id="session.attribute_bag" class="Symfony\Component\HttpFoundation\Session\Attribute\AttributeBag">
       <argument>attributes</argument>
       <factory service="session" method="getBag"/>
     </service>
-    <service id="session.storage.mock_file" class="Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage" public="false">
+    <service id="session.storage.mock_file" class="Symfony\Component\HttpFoundation\Session\Storage\MockFileSessionStorage">
       <argument>/var/guestbook/guestbook/var/cache/dev/sessions</argument>
       <argument>MOCKSESSID</argument>
       <argument type="service" id="session.storage.metadata_bag"/>
     </service>
-    <service id="session.handler.native_file" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\StrictSessionHandler" public="false">
+    <service id="session.handler.native_file" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\StrictSessionHandler">
       <argument type="service" id=".1_NativeFileSessionHandler~i04Tucq"/>
     </service>
-    <service id="session.abstract_handler" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\AbstractSessionHandler" public="false">
+    <service id="session.abstract_handler" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\AbstractSessionHandler">
       <argument></argument>
       <factory class="Symfony\Component\HttpFoundation\Session\Storage\Handler\SessionHandlerFactory" method="createHandler"/>
     </service>
-    <service id="session_listener" class="Symfony\Component\HttpKernel\EventListener\SessionListener" public="false">
+    <service id="session_listener" class="Symfony\Component\HttpKernel\EventListener\SessionListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
-      <argument type="service" id=".service_locator.Bppmeg3"/>
+      <argument type="service" id=".service_locator.S4hE9mt"/>
     </service>
     <service id="profiler" class="Symfony\Component\HttpKernel\Profiler\Profiler" public="true">
       <tag name="monolog.logger" channel="profiler"/>
@@ -786,10 +847,10 @@
         <argument type="service" id="data_collector.config"/>
       </call>
     </service>
-    <service id="profiler.storage" class="Symfony\Component\HttpKernel\Profiler\FileProfilerStorage" public="false">
+    <service id="profiler.storage" class="Symfony\Component\HttpKernel\Profiler\FileProfilerStorage">
       <argument>file:/var/guestbook/guestbook/var/cache/dev/profiler</argument>
     </service>
-    <service id="profiler_listener" class="Symfony\Component\HttpKernel\EventListener\ProfilerListener" public="false">
+    <service id="profiler_listener" class="Symfony\Component\HttpKernel\EventListener\ProfilerListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
       <argument type="service" id="profiler"/>
@@ -798,50 +859,50 @@
       <argument>false</argument>
       <argument>false</argument>
     </service>
-    <service id="data_collector.config" class="Symfony\Component\HttpKernel\DataCollector\ConfigDataCollector" public="false">
+    <service id="data_collector.config" class="Symfony\Component\HttpKernel\DataCollector\ConfigDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/config.html.twig" id="config" priority="-255"/>
       <call method="setKernel">
         <argument type="service" id="kernel" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="data_collector.request" class="Symfony\Component\HttpKernel\DataCollector\RequestDataCollector" public="false">
+    <service id="data_collector.request" class="Symfony\Component\HttpKernel\DataCollector\RequestDataCollector">
       <tag name="kernel.event_subscriber"/>
       <tag name="data_collector" template="@WebProfiler/Collector/request.html.twig" id="request" priority="335"/>
       <tag name="container.hot_path"/>
       <tag name="container.hot_path"/>
     </service>
-    <service id="data_collector.ajax" class="Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector" public="false">
+    <service id="data_collector.ajax" class="Symfony\Component\HttpKernel\DataCollector\AjaxDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/ajax.html.twig" id="ajax" priority="315"/>
     </service>
-    <service id="data_collector.exception" class="Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector" public="false">
+    <service id="data_collector.exception" class="Symfony\Component\HttpKernel\DataCollector\ExceptionDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/exception.html.twig" id="exception" priority="305"/>
     </service>
-    <service id="data_collector.events" class="Symfony\Component\HttpKernel\DataCollector\EventDataCollector" public="false">
+    <service id="data_collector.events" class="Symfony\Component\HttpKernel\DataCollector\EventDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/events.html.twig" id="events" priority="290"/>
       <argument type="service" id="debug.event_dispatcher" on-invalid="ignore"/>
       <argument type="service" id="request_stack" on-invalid="ignore"/>
     </service>
-    <service id="data_collector.logger" class="Symfony\Component\HttpKernel\DataCollector\LoggerDataCollector" public="false">
+    <service id="data_collector.logger" class="Symfony\Component\HttpKernel\DataCollector\LoggerDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/logger.html.twig" id="logger" priority="300"/>
       <tag name="monolog.logger" channel="profiler"/>
       <argument type="service" id="monolog.logger.profiler" on-invalid="ignore"/>
       <argument>/var/guestbook/guestbook/var/cache/dev/App_KernelDevDebugContainer</argument>
       <argument type="service" id="request_stack" on-invalid="ignore"/>
     </service>
-    <service id="data_collector.time" class="Symfony\Component\HttpKernel\DataCollector\TimeDataCollector" public="false">
+    <service id="data_collector.time" class="Symfony\Component\HttpKernel\DataCollector\TimeDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/time.html.twig" id="time" priority="330"/>
       <argument type="service" id="kernel" on-invalid="ignore"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
     </service>
-    <service id="data_collector.memory" class="Symfony\Component\HttpKernel\DataCollector\MemoryDataCollector" public="false">
+    <service id="data_collector.memory" class="Symfony\Component\HttpKernel\DataCollector\MemoryDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/memory.html.twig" id="memory" priority="325"/>
     </service>
-    <service id="data_collector.router" class="Symfony\Bundle\FrameworkBundle\DataCollector\RouterDataCollector" public="false">
+    <service id="data_collector.router" class="Symfony\Bundle\FrameworkBundle\DataCollector\RouterDataCollector">
       <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController"/>
       <tag name="data_collector" template="@WebProfiler/Collector/router.html.twig" id="router" priority="285"/>
       <tag name="container.hot_path"/>
     </service>
-    <service id="data_collector.cache" class="Symfony\Component\Cache\DataCollector\CacheDataCollector" public="false">
+    <service id="data_collector.cache" class="Symfony\Component\Cache\DataCollector\CacheDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/cache.html.twig" id="cache" priority="275"/>
       <call method="addInstance">
         <argument>cache.app</argument>
@@ -868,7 +929,7 @@
         <argument type="service" id="cache.property_info"/>
       </call>
     </service>
-    <service id="debug.debug_handlers_listener" class="Symfony\Component\HttpKernel\EventListener\DebugHandlersListener" public="false">
+    <service id="debug.debug_handlers_listener" class="Symfony\Component\HttpKernel\EventListener\DebugHandlersListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="monolog.logger" channel="php"/>
       <tag name="container.hot_path"/>
@@ -880,17 +941,17 @@
       <argument type="service" id="debug.file_link_formatter"/>
       <argument>true</argument>
     </service>
-    <service id="debug.file_link_formatter" class="Symfony\Component\HttpKernel\Debug\FileLinkFormatter" public="false">
+    <service id="debug.file_link_formatter" class="Symfony\Component\HttpKernel\Debug\FileLinkFormatter">
       <argument>null</argument>
       <argument type="service" id="request_stack" on-invalid="ignore"/>
       <argument>/var/guestbook/guestbook</argument>
-      <argument type="service" id="debug.file_link_formatter.url_format"/>
+      <argument type="service_closure" id="debug.file_link_formatter.url_format"/>
     </service>
     <service id="debug.stopwatch" class="Symfony\Component\Stopwatch\Stopwatch">
       <tag name="kernel.reset" method="reset"/>
       <argument>true</argument>
     </service>
-    <service id="debug.event_dispatcher" class="Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher" public="false">
+    <service id="debug.event_dispatcher" class="Symfony\Component\HttpKernel\Debug\TraceableEventDispatcher">
       <tag name="container.hot_path"/>
       <tag name="monolog.logger" channel="event"/>
       <tag name="kernel.reset" method="reset"/>
@@ -901,7 +962,7 @@
       <call method="addListener">
         <argument>kernel.controller</argument>
         <argument type="collection">
-          <argument type="service" id="data_collector.router"/>
+          <argument type="service_closure" id="data_collector.router"/>
           <argument>onKernelController</argument>
         </argument>
         <argument>0</argument>
@@ -909,7 +970,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="response_listener"/>
+          <argument type="service_closure" id="response_listener"/>
           <argument>onKernelResponse</argument>
         </argument>
         <argument>0</argument>
@@ -917,7 +978,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="streamed_response_listener"/>
+          <argument type="service_closure" id="streamed_response_listener"/>
           <argument>onKernelResponse</argument>
         </argument>
         <argument>-1024</argument>
@@ -925,7 +986,7 @@
       <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
-          <argument type="service" id="locale_listener"/>
+          <argument type="service_closure" id="locale_listener"/>
           <argument>setDefaultLocale</argument>
         </argument>
         <argument>100</argument>
@@ -933,7 +994,7 @@
       <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
-          <argument type="service" id="locale_listener"/>
+          <argument type="service_closure" id="locale_listener"/>
           <argument>onKernelRequest</argument>
         </argument>
         <argument>16</argument>
@@ -941,7 +1002,7 @@
       <call method="addListener">
         <argument>kernel.finish_request</argument>
         <argument type="collection">
-          <argument type="service" id="locale_listener"/>
+          <argument type="service_closure" id="locale_listener"/>
           <argument>onKernelFinishRequest</argument>
         </argument>
         <argument>0</argument>
@@ -949,7 +1010,7 @@
       <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
-          <argument type="service" id="validate_request_listener"/>
+          <argument type="service_closure" id="validate_request_listener"/>
           <argument>onKernelRequest</argument>
         </argument>
         <argument>256</argument>
@@ -957,7 +1018,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="disallow_search_engine_index_response_listener"/>
+          <argument type="service_closure" id="disallow_search_engine_index_response_listener"/>
           <argument>onResponse</argument>
         </argument>
         <argument>-255</argument>
@@ -965,7 +1026,7 @@
       <call method="addListener">
         <argument>kernel.controller_arguments</argument>
         <argument type="collection">
-          <argument type="service" id="exception_listener"/>
+          <argument type="service_closure" id="exception_listener"/>
           <argument>onControllerArguments</argument>
         </argument>
         <argument>0</argument>
@@ -973,7 +1034,7 @@
       <call method="addListener">
         <argument>kernel.exception</argument>
         <argument type="collection">
-          <argument type="service" id="exception_listener"/>
+          <argument type="service_closure" id="exception_listener"/>
           <argument>logKernelException</argument>
         </argument>
         <argument>0</argument>
@@ -981,15 +1042,39 @@
       <call method="addListener">
         <argument>kernel.exception</argument>
         <argument type="collection">
-          <argument type="service" id="exception_listener"/>
+          <argument type="service_closure" id="exception_listener"/>
           <argument>onKernelException</argument>
         </argument>
         <argument>-128</argument>
       </call>
       <call method="addListener">
+        <argument>kernel.response</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="exception_listener"/>
+          <argument>removeCspHeader</argument>
+        </argument>
+        <argument>-128</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_aware_listener"/>
+          <argument>onKernelRequest</argument>
+        </argument>
+        <argument>15</argument>
+      </call>
+      <call method="addListener">
+        <argument>kernel.finish_request</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="locale_aware_listener"/>
+          <argument>onKernelFinishRequest</argument>
+        </argument>
+        <argument>-15</argument>
+      </call>
+      <call method="addListener">
         <argument>console.error</argument>
         <argument type="collection">
-          <argument type="service" id="console.error_listener"/>
+          <argument type="service_closure" id="console.error_listener"/>
           <argument>onConsoleError</argument>
         </argument>
         <argument>-128</argument>
@@ -997,7 +1082,7 @@
       <call method="addListener">
         <argument>console.terminate</argument>
         <argument type="collection">
-          <argument type="service" id="console.error_listener"/>
+          <argument type="service_closure" id="console.error_listener"/>
           <argument>onConsoleTerminate</argument>
         </argument>
         <argument>-128</argument>
@@ -1005,7 +1090,7 @@
       <call method="addListener">
         <argument>console.error</argument>
         <argument type="collection">
-          <argument type="service" id="console.suggest_missing_package_subscriber"/>
+          <argument type="service_closure" id="console.suggest_missing_package_subscriber"/>
           <argument>onConsoleError</argument>
         </argument>
         <argument>0</argument>
@@ -1013,7 +1098,7 @@
       <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
-          <argument type="service" id="session_listener"/>
+          <argument type="service_closure" id="session_listener"/>
           <argument>onKernelRequest</argument>
         </argument>
         <argument>128</argument>
@@ -1021,7 +1106,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="session_listener"/>
+          <argument type="service_closure" id="session_listener"/>
           <argument>onKernelResponse</argument>
         </argument>
         <argument>-1000</argument>
@@ -1029,7 +1114,7 @@
       <call method="addListener">
         <argument>kernel.finish_request</argument>
         <argument type="collection">
-          <argument type="service" id="session_listener"/>
+          <argument type="service_closure" id="session_listener"/>
           <argument>onFinishRequest</argument>
         </argument>
         <argument>0</argument>
@@ -1037,7 +1122,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="profiler_listener"/>
+          <argument type="service_closure" id="profiler_listener"/>
           <argument>onKernelResponse</argument>
         </argument>
         <argument>-100</argument>
@@ -1045,7 +1130,7 @@
       <call method="addListener">
         <argument>kernel.exception</argument>
         <argument type="collection">
-          <argument type="service" id="profiler_listener"/>
+          <argument type="service_closure" id="profiler_listener"/>
           <argument>onKernelException</argument>
         </argument>
         <argument>0</argument>
@@ -1053,7 +1138,7 @@
       <call method="addListener">
         <argument>kernel.terminate</argument>
         <argument type="collection">
-          <argument type="service" id="profiler_listener"/>
+          <argument type="service_closure" id="profiler_listener"/>
           <argument>onKernelTerminate</argument>
         </argument>
         <argument>-1024</argument>
@@ -1061,7 +1146,7 @@
       <call method="addListener">
         <argument>kernel.controller</argument>
         <argument type="collection">
-          <argument type="service" id="data_collector.request"/>
+          <argument type="service_closure" id="data_collector.request"/>
           <argument>onKernelController</argument>
         </argument>
         <argument>0</argument>
@@ -1069,7 +1154,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="data_collector.request"/>
+          <argument type="service_closure" id="data_collector.request"/>
           <argument>onKernelResponse</argument>
         </argument>
         <argument>0</argument>
@@ -1077,7 +1162,7 @@
       <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
-          <argument type="service" id="debug.debug_handlers_listener"/>
+          <argument type="service_closure" id="debug.debug_handlers_listener"/>
           <argument>configure</argument>
         </argument>
         <argument>2048</argument>
@@ -1085,7 +1170,7 @@
       <call method="addListener">
         <argument>console.command</argument>
         <argument type="collection">
-          <argument type="service" id="debug.debug_handlers_listener"/>
+          <argument type="service_closure" id="debug.debug_handlers_listener"/>
           <argument>configure</argument>
         </argument>
         <argument>2048</argument>
@@ -1093,7 +1178,7 @@
       <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
-          <argument type="service" id="router_listener"/>
+          <argument type="service_closure" id="router_listener"/>
           <argument>onKernelRequest</argument>
         </argument>
         <argument>32</argument>
@@ -1101,7 +1186,7 @@
       <call method="addListener">
         <argument>kernel.finish_request</argument>
         <argument type="collection">
-          <argument type="service" id="router_listener"/>
+          <argument type="service_closure" id="router_listener"/>
           <argument>onKernelFinishRequest</argument>
         </argument>
         <argument>0</argument>
@@ -1109,7 +1194,7 @@
       <call method="addListener">
         <argument>kernel.exception</argument>
         <argument type="collection">
-          <argument type="service" id="router_listener"/>
+          <argument type="service_closure" id="router_listener"/>
           <argument>onKernelException</argument>
         </argument>
         <argument>-64</argument>
@@ -1117,7 +1202,7 @@
       <call method="addListener">
         <argument>kernel.response</argument>
         <argument type="collection">
-          <argument type="service" id="web_profiler.debug_toolbar"/>
+          <argument type="service_closure" id="web_profiler.debug_toolbar"/>
           <argument>onKernelResponse</argument>
         </argument>
         <argument>-128</argument>
@@ -1125,7 +1210,7 @@
       <call method="addListener">
         <argument>console.command</argument>
         <argument type="collection">
-          <argument type="service" id="monolog.handler.console"/>
+          <argument type="service_closure" id="monolog.handler.console"/>
           <argument>onCommand</argument>
         </argument>
         <argument>255</argument>
@@ -1133,7 +1218,7 @@
       <call method="addListener">
         <argument>console.terminate</argument>
         <argument type="collection">
-          <argument type="service" id="monolog.handler.console"/>
+          <argument type="service_closure" id="monolog.handler.console"/>
           <argument>onTerminate</argument>
         </argument>
         <argument>-255</argument>
@@ -1141,7 +1226,7 @@
       <call method="addListener">
         <argument>console.command</argument>
         <argument type="collection">
-          <argument type="service" id="debug.dump_listener"/>
+          <argument type="service_closure" id="debug.dump_listener"/>
           <argument>configure</argument>
         </argument>
         <argument>1024</argument>
@@ -1149,7 +1234,7 @@
       <call method="addListener">
         <argument>console.error</argument>
         <argument type="collection">
-          <argument type="service" id="maker.console_error_listener"/>
+          <argument type="service_closure" id="maker.console_error_listener"/>
           <argument>onConsoleError</argument>
         </argument>
         <argument>0</argument>
@@ -1157,25 +1242,25 @@
       <call method="addListener">
         <argument>console.terminate</argument>
         <argument type="collection">
-          <argument type="service" id="maker.console_error_listener"/>
+          <argument type="service_closure" id="maker.console_error_listener"/>
           <argument>onConsoleTerminate</argument>
         </argument>
         <argument>0</argument>
       </call>
     </service>
-    <service id="debug.controller_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableControllerResolver" public="false">
+    <service id="debug.controller_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableControllerResolver">
       <tag name="monolog.logger" channel="request"/>
       <argument type="service" id="debug.controller_resolver.inner"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id="debug.argument_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableArgumentResolver" public="false">
+    <service id="debug.argument_resolver" class="Symfony\Component\HttpKernel\Controller\TraceableArgumentResolver">
       <argument type="service" id="debug.argument_resolver.inner"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor" public="false">
+    <service id="debug.log_processor" class="Symfony\Bridge\Monolog\Processor\DebugProcessor">
       <argument type="service" id="request_stack"/>
     </service>
-    <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver" public="false">
+    <service id="routing.resolver" class="Symfony\Component\Config\Loader\LoaderResolver">
       <call method="addLoader">
         <argument type="service" id="routing.loader.xml"/>
       </call>
@@ -1204,29 +1289,29 @@
         <argument type="service" id="routing.loader.annotation.file"/>
       </call>
     </service>
-    <service id="routing.loader.xml" class="Symfony\Component\Routing\Loader\XmlFileLoader" public="false">
+    <service id="routing.loader.xml" class="Symfony\Component\Routing\Loader\XmlFileLoader">
       <tag name="routing.loader"/>
       <argument type="service" id="file_locator"/>
     </service>
-    <service id="routing.loader.yml" class="Symfony\Component\Routing\Loader\YamlFileLoader" public="false">
+    <service id="routing.loader.yml" class="Symfony\Component\Routing\Loader\YamlFileLoader">
       <tag name="routing.loader"/>
       <argument type="service" id="file_locator"/>
     </service>
-    <service id="routing.loader.php" class="Symfony\Component\Routing\Loader\PhpFileLoader" public="false">
+    <service id="routing.loader.php" class="Symfony\Component\Routing\Loader\PhpFileLoader">
       <tag name="routing.loader"/>
       <argument type="service" id="file_locator"/>
     </service>
-    <service id="routing.loader.glob" class="Symfony\Component\Routing\Loader\GlobFileLoader" public="false">
+    <service id="routing.loader.glob" class="Symfony\Component\Routing\Loader\GlobFileLoader">
       <tag name="routing.loader"/>
       <argument type="service" id="file_locator"/>
     </service>
-    <service id="routing.loader.directory" class="Symfony\Component\Routing\Loader\DirectoryLoader" public="false">
+    <service id="routing.loader.directory" class="Symfony\Component\Routing\Loader\DirectoryLoader">
       <tag name="routing.loader"/>
       <argument type="service" id="file_locator"/>
     </service>
-    <service id="routing.loader.container" class="Symfony\Component\Routing\Loader\ContainerLoader" public="false">
+    <service id="routing.loader.container" class="Symfony\Component\Routing\Loader\ContainerLoader">
       <tag name="routing.loader"/>
-      <argument type="service" id=".service_locator.6czk.jg"/>
+      <argument type="service" id=".service_locator.XWmhzGa"/>
     </service>
     <service id="routing.loader" class="Symfony\Bundle\FrameworkBundle\Routing\DelegatingLoader" public="true">
       <argument type="service" id="routing.resolver"/>
@@ -1234,10 +1319,10 @@
         <argument key="utf8">true</argument>
       </argument>
     </service>
-    <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router" public="false">
+    <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router">
       <tag name="monolog.logger" channel="router"/>
       <tag name="container.service_subscriber" id="routing.loader"/>
-      <argument type="service" id=".service_locator.Jt3qTZa.router.default"/>
+      <argument type="service" id=".service_locator.LeJjUB..router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
         <argument key="cache_dir">/var/guestbook/guestbook/var/cache/dev</argument>
@@ -1257,7 +1342,7 @@
         <argument type="service" id="config_cache_factory"/>
       </call>
     </service>
-    <service id="router.request_context" class="Symfony\Component\Routing\RequestContext" public="false">
+    <service id="router.request_context" class="Symfony\Component\Routing\RequestContext">
       <argument></argument>
       <argument>GET</argument>
       <argument>localhost</argument>
@@ -1265,12 +1350,12 @@
       <argument>80</argument>
       <argument>443</argument>
     </service>
-    <service id="router.cache_warmer" class="Symfony\Bundle\FrameworkBundle\CacheWarmer\RouterCacheWarmer" public="false">
+    <service id="router.cache_warmer" class="Symfony\Bundle\FrameworkBundle\CacheWarmer\RouterCacheWarmer">
       <tag name="container.service_subscriber" id="router"/>
       <tag name="kernel.cache_warmer"/>
-      <argument type="service" id=".service_locator..6JcfEa.router.cache_warmer"/>
+      <argument type="service" id=".service_locator.oCg4uHe.router.cache_warmer"/>
     </service>
-    <service id="router_listener" class="Symfony\Component\HttpKernel\EventListener\RouterListener" public="false">
+    <service id="router_listener" class="Symfony\Component\HttpKernel\EventListener\RouterListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="monolog.logger" channel="request"/>
       <tag name="container.hot_path"/>
@@ -1290,47 +1375,47 @@
     <service id="Symfony\Bundle\FrameworkBundle\Controller\TemplateController" class="Symfony\Bundle\FrameworkBundle\Controller\TemplateController" public="true">
       <argument type="service" id="twig" on-invalid="ignore"/>
     </service>
-    <service id="routing.loader.annotation" class="Symfony\Bundle\FrameworkBundle\Routing\AnnotatedRouteControllerLoader" public="false">
+    <service id="routing.loader.annotation" class="Symfony\Bundle\FrameworkBundle\Routing\AnnotatedRouteControllerLoader">
       <tag name="routing.loader" priority="-10"/>
       <argument type="service" id="annotations.reader"/>
     </service>
-    <service id="routing.loader.annotation.directory" class="Symfony\Component\Routing\Loader\AnnotationDirectoryLoader" public="false">
+    <service id="routing.loader.annotation.directory" class="Symfony\Component\Routing\Loader\AnnotationDirectoryLoader">
       <tag name="routing.loader" priority="-10"/>
       <argument type="service" id="file_locator"/>
       <argument type="service" id="routing.loader.annotation"/>
     </service>
-    <service id="routing.loader.annotation.file" class="Symfony\Component\Routing\Loader\AnnotationFileLoader" public="false">
+    <service id="routing.loader.annotation.file" class="Symfony\Component\Routing\Loader\AnnotationFileLoader">
       <tag name="routing.loader" priority="-10"/>
       <argument type="service" id="file_locator"/>
       <argument type="service" id="routing.loader.annotation"/>
     </service>
-    <service id=".2_PhpArrayAdapter~6C7iHT6" class="Symfony\Component\Cache\Adapter\PhpArrayAdapter" public="false">
+    <service id=".2_PhpArrayAdapter~6C7iHT6" class="Symfony\Component\Cache\Adapter\PhpArrayAdapter">
       <argument>/var/guestbook/guestbook/var/cache/dev/annotations.php</argument>
       <argument type="service" id="cache.annotations"/>
       <factory class="Symfony\Component\Cache\Adapter\PhpArrayAdapter" method="create"/>
     </service>
-    <service id=".1_ArrayCache~6C7iHT6" class="Doctrine\Common\Cache\ArrayCache" public="false"/>
-    <service id="annotations.reader" class="Doctrine\Common\Annotations\AnnotationReader" public="false">
+    <service id=".1_ArrayCache~6C7iHT6" class="Doctrine\Common\Cache\ArrayCache"/>
+    <service id="annotations.reader" class="Doctrine\Common\Annotations\AnnotationReader">
       <call method="addGlobalIgnoredName">
         <argument>required</argument>
         <argument type="service" id="annotations.dummy_registry"/>
       </call>
     </service>
-    <service id="annotations.dummy_registry" class="Doctrine\Common\Annotations\AnnotationRegistry" public="false">
+    <service id="annotations.dummy_registry" class="Doctrine\Common\Annotations\AnnotationRegistry">
       <call method="registerUniqueLoader">
         <argument>class_exists</argument>
       </call>
     </service>
-    <service id="annotations.filesystem_cache" class="Doctrine\Common\Cache\FilesystemCache" public="false">
+    <service id="annotations.filesystem_cache" class="Doctrine\Common\Cache\FilesystemCache">
       <argument></argument>
     </service>
-    <service id="annotations.cache_warmer" class="Symfony\Bundle\FrameworkBundle\CacheWarmer\AnnotationsCacheWarmer" public="false">
+    <service id="annotations.cache_warmer" class="Symfony\Bundle\FrameworkBundle\CacheWarmer\AnnotationsCacheWarmer">
       <argument type="service" id="annotations.reader"/>
       <argument>/var/guestbook/guestbook/var/cache/dev/annotations.php</argument>
       <argument>#^Symfony\\(?:Component\\HttpKernel\\|Bundle\\FrameworkBundle\\Controller\\(?!.*Controller$))#</argument>
       <argument>true</argument>
     </service>
-    <service id="annotations.cache" class="Symfony\Component\Cache\DoctrineProvider" public="false">
+    <service id="annotations.cache" class="Symfony\Component\Cache\DoctrineProvider">
       <argument type="service" id=".2_PhpArrayAdapter~6C7iHT6"/>
     </service>
     <service id="secrets.vault" class="Symfony\Bundle\FrameworkBundle\Secrets\SodiumVault">
@@ -1341,17 +1426,16 @@
     <service id="secrets.local_vault" class="Symfony\Bundle\FrameworkBundle\Secrets\DotenvVault">
       <argument>/var/guestbook/guestbook/.env.dev.local</argument>
     </service>
-    <service id="mime_types" class="Symfony\Component\Mime\MimeTypes" public="false">
-      <call method="setDefault">
-        <argument type="service" id="mime_types"/>
-      </call>
-    </service>
-    <service id=".1_~QEnV_le" public="false">
-      <argument type="service" id="request_stack"/>
-      <argument>true</argument>
-      <factory class="Symfony\Bridge\Twig\ErrorRenderer\TwigErrorRenderer" method="isDebug"/>
-    </service>
     <service id="twig" class="Twig\Environment" public="true">
+      <tag name="container.preload" class="Twig\Cache\FilesystemCache"/>
+      <tag name="container.preload" class="Twig\Extension\CoreExtension"/>
+      <tag name="container.preload" class="Twig\Extension\EscaperExtension"/>
+      <tag name="container.preload" class="Twig\Extension\OptimizerExtension"/>
+      <tag name="container.preload" class="Twig\Extension\StagingExtension"/>
+      <tag name="container.preload" class="Twig\ExtensionSet"/>
+      <tag name="container.preload" class="Twig\Template"/>
+      <tag name="container.preload" class="Twig\TemplateWrapper"/>
+      <tag name="container.private" package="symfony/twig-bundle" version="5.2"/>
       <argument type="service" id="twig.loader.native_filesystem"/>
       <argument type="collection">
         <argument key="autoescape">name</argument>
@@ -1399,7 +1483,7 @@
       </call>
       <configurator service="twig.configurator.environment" method="configure"/>
     </service>
-    <service id="twig.app_variable" class="Symfony\Bridge\Twig\AppVariable" public="false">
+    <service id="twig.app_variable" class="Symfony\Bridge\Twig\AppVariable">
       <call method="setEnvironment">
         <argument>dev</argument>
       </call>
@@ -1410,18 +1494,18 @@
         <argument type="service" id="request_stack" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="twig.template_iterator" class="Symfony\Bundle\TwigBundle\TemplateIterator" public="false">
+    <service id="twig.template_iterator" class="Symfony\Bundle\TwigBundle\TemplateIterator">
       <argument type="service" id="kernel"/>
       <argument type="collection"/>
       <argument>/var/guestbook/guestbook/templates</argument>
     </service>
-    <service id="twig.template_cache_warmer" class="Symfony\Bundle\TwigBundle\CacheWarmer\TemplateCacheWarmer" public="false">
+    <service id="twig.template_cache_warmer" class="Symfony\Bundle\TwigBundle\CacheWarmer\TemplateCacheWarmer">
       <tag name="kernel.cache_warmer"/>
       <tag name="container.service_subscriber" id="twig"/>
-      <argument type="service" id=".service_locator.R9AKutE.twig.template_cache_warmer"/>
+      <argument type="service" id=".service_locator.v.Wwsjy.twig.template_cache_warmer"/>
       <argument type="service" id="twig.template_iterator"/>
     </service>
-    <service id="twig.loader.native_filesystem" class="Twig\Loader\FilesystemLoader" public="false">
+    <service id="twig.loader.native_filesystem" class="Twig\Loader\FilesystemLoader">
       <tag name="twig.loader"/>
       <argument type="collection"/>
       <argument>/var/guestbook/guestbook</argument>
@@ -1453,56 +1537,57 @@
         <argument>/var/guestbook/guestbook/templates</argument>
       </call>
     </service>
-    <service id="twig.loader.chain" class="Twig\Loader\ChainLoader" public="false"/>
-    <service id="twig.extension.profiler" class="Symfony\Bridge\Twig\Extension\ProfilerExtension" public="false">
+    <service id="twig.loader.chain" class="Twig\Loader\ChainLoader"/>
+    <service id="twig.extension.profiler" class="Symfony\Bridge\Twig\Extension\ProfilerExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="twig.profile"/>
-      <argument type="service" id="debug.stopwatch" on-invalid="null"/>
+      <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
     </service>
-    <service id="twig.profile" class="Twig\Profiler\Profile" public="false"/>
-    <service id="data_collector.twig" class="Symfony\Bridge\Twig\DataCollector\TwigDataCollector" public="false">
+    <service id="twig.profile" class="Twig\Profiler\Profile"/>
+    <service id="data_collector.twig" class="Symfony\Bridge\Twig\DataCollector\TwigDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/twig.html.twig" id="twig" priority="257"/>
       <argument type="service" id="twig.profile"/>
       <argument type="service" id="twig"/>
     </service>
-    <service id="twig.extension.trans" class="Symfony\Bridge\Twig\Extension\TranslationExtension" public="false">
+    <service id="twig.extension.trans" class="Symfony\Bridge\Twig\Extension\TranslationExtension">
       <tag name="twig.extension"/>
       <argument>null</argument>
     </service>
-    <service id="twig.extension.code" class="Symfony\Bridge\Twig\Extension\CodeExtension" public="false">
+    <service id="twig.extension.code" class="Symfony\Bridge\Twig\Extension\CodeExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="debug.file_link_formatter" on-invalid="ignore"/>
       <argument>/var/guestbook/guestbook</argument>
       <argument>UTF-8</argument>
     </service>
-    <service id="twig.extension.routing" class="Symfony\Bridge\Twig\Extension\RoutingExtension" public="false">
+    <service id="twig.extension.routing" class="Symfony\Bridge\Twig\Extension\RoutingExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="router.default"/>
     </service>
-    <service id="twig.extension.yaml" class="Symfony\Bridge\Twig\Extension\YamlExtension" public="false">
+    <service id="twig.extension.yaml" class="Symfony\Bridge\Twig\Extension\YamlExtension">
       <tag name="twig.extension"/>
     </service>
-    <service id="twig.extension.debug.stopwatch" class="Symfony\Bridge\Twig\Extension\StopwatchExtension" public="false">
+    <service id="twig.extension.debug.stopwatch" class="Symfony\Bridge\Twig\Extension\StopwatchExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="debug.stopwatch" on-invalid="ignore"/>
       <argument>true</argument>
     </service>
-    <service id="twig.extension.httpkernel" class="Symfony\Bridge\Twig\Extension\HttpKernelExtension" public="false">
+    <service id="twig.extension.httpkernel" class="Symfony\Bridge\Twig\Extension\HttpKernelExtension">
       <tag name="twig.extension"/>
     </service>
-    <service id="twig.runtime.httpkernel" class="Symfony\Bridge\Twig\Extension\HttpKernelRuntime" public="false">
+    <service id="twig.runtime.httpkernel" class="Symfony\Bridge\Twig\Extension\HttpKernelRuntime">
       <tag name="twig.runtime"/>
       <argument type="service" id="fragment.handler"/>
+      <argument>null</argument>
     </service>
-    <service id="twig.extension.httpfoundation" class="Symfony\Bridge\Twig\Extension\HttpFoundationExtension" public="false">
+    <service id="twig.extension.httpfoundation" class="Symfony\Bridge\Twig\Extension\HttpFoundationExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="url_helper"/>
     </service>
-    <service id="twig.extension.debug" class="Twig\Extension\DebugExtension" public="false"/>
-    <service id="twig.extension.weblink" class="Symfony\Bridge\Twig\Extension\WebLinkExtension" public="false">
+    <service id="twig.extension.debug" class="Twig\Extension\DebugExtension"/>
+    <service id="twig.extension.weblink" class="Symfony\Bridge\Twig\Extension\WebLinkExtension">
       <argument type="service" id="request_stack"/>
     </service>
-    <service id="twig.configurator.environment" class="Symfony\Bundle\TwigBundle\DependencyInjection\Configurator\EnvironmentConfigurator" public="false">
+    <service id="twig.configurator.environment" class="Symfony\Bundle\TwigBundle\DependencyInjection\Configurator\EnvironmentConfigurator">
       <argument>F j, Y H:i</argument>
       <argument>%d days</argument>
       <argument>null</argument>
@@ -1510,16 +1595,27 @@
       <argument>.</argument>
       <argument>,</argument>
     </service>
-    <service id="twig.runtime_loader" class="Twig\RuntimeLoader\ContainerRuntimeLoader" public="false">
-      <argument type="service" id=".service_locator.UCasskA"/>
+    <service id="twig.runtime_loader" class="Twig\RuntimeLoader\ContainerRuntimeLoader">
+      <argument type="service" id=".service_locator.HJisze0"/>
     </service>
-    <service id="twig.error_renderer.html" class="Symfony\Bridge\Twig\ErrorRenderer\TwigErrorRenderer" public="false">
+    <service id="twig.error_renderer.html" class="Symfony\Bridge\Twig\ErrorRenderer\TwigErrorRenderer">
       <argument type="service" id="twig"/>
       <argument type="service" id="error_handler.error_renderer.html"/>
-      <argument type="service" id=".1_~QEnV_le"/>
+      <argument type="service">
+        <service class="bool">
+          <argument type="service" id="request_stack"/>
+          <argument>true</argument>
+          <factory class="Symfony\Bridge\Twig\ErrorRenderer\TwigErrorRenderer" method="isDebug"/>
+        </service>
+      </argument>
     </service>
-    <service id="twig.command.debug" class="Symfony\Bridge\Twig\Command\DebugCommand" public="false">
-      <tag name="console.command" command="debug:twig"/>
+    <service id="twig.runtime.serializer" class="Symfony\Bridge\Twig\Extension\SerializerRuntime">
+      <argument type="service" id="serializer"/>
+    </service>
+    <service id="twig.extension.serializer" class="Symfony\Bridge\Twig\Extension\SerializerExtension"/>
+    <service id="twig.command.debug" class="Symfony\Bridge\Twig\Command\DebugCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="twig"/>
       <argument>/var/guestbook/guestbook</argument>
       <argument>%kernel.bundles_metadata%</argument>
@@ -1528,15 +1624,22 @@
       <call method="setName">
         <argument>debug:twig</argument>
       </call>
+      <call method="setDescription">
+        <argument>Show a list of twig functions, filters, globals and tests</argument>
+      </call>
     </service>
-    <service id="twig.command.lint" class="Symfony\Bundle\TwigBundle\Command\LintCommand" public="false">
-      <tag name="console.command" command="lint:twig"/>
+    <service id="twig.command.lint" class="Symfony\Bundle\TwigBundle\Command\LintCommand">
+      <tag name="console.command"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="twig"/>
       <call method="setName">
         <argument>lint:twig</argument>
       </call>
+      <call method="setDescription">
+        <argument>Lint a Twig template and outputs encountered errors</argument>
+      </call>
     </service>
-    <service id=".2_HtmlDumper~AVwueTM" class="Symfony\Component\VarDumper\Dumper\HtmlDumper" public="false">
+    <service id=".2_HtmlDumper~AVwueTM" class="Symfony\Component\VarDumper\Dumper\HtmlDumper">
       <argument>null</argument>
       <argument>UTF-8</argument>
       <argument>1</argument>
@@ -1547,7 +1650,7 @@
         </argument>
       </call>
     </service>
-    <service id=".1_NonceGenerator~AVwueTM" class="Symfony\Bundle\WebProfilerBundle\Csp\NonceGenerator" public="false"/>
+    <service id=".1_NonceGenerator~AVwueTM" class="Symfony\Bundle\WebProfilerBundle\Csp\NonceGenerator"/>
     <service id="web_profiler.controller.profiler" class="Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController" public="true">
       <argument type="service" id="router.default" on-invalid="null"/>
       <argument type="service" id="profiler" on-invalid="null"/>
@@ -1565,20 +1668,20 @@
       <argument type="service" id="error_handler.error_renderer.html"/>
       <argument type="service" id="profiler" on-invalid="null"/>
     </service>
-    <service id="web_profiler.csp.handler" class="Symfony\Bundle\WebProfilerBundle\Csp\ContentSecurityPolicyHandler" public="false">
+    <service id="web_profiler.csp.handler" class="Symfony\Bundle\WebProfilerBundle\Csp\ContentSecurityPolicyHandler">
       <argument type="service" id=".1_NonceGenerator~AVwueTM"/>
     </service>
-    <service id="twig.extension.webprofiler" class="Symfony\Bundle\WebProfilerBundle\Twig\WebProfilerExtension" public="false">
+    <service id="twig.extension.webprofiler" class="Symfony\Bundle\WebProfilerBundle\Twig\WebProfilerExtension">
       <tag name="twig.extension"/>
       <argument type="service" id=".2_HtmlDumper~AVwueTM"/>
     </service>
-    <service id="debug.file_link_formatter.url_format" class="string" public="false">
+    <service id="debug.file_link_formatter.url_format" class="string">
       <argument type="service" id="router.default"/>
       <argument>_profiler_open_file</argument>
       <argument>?file=%%f&amp;line=%%l#line%%l</argument>
       <factory class="Symfony\Component\HttpKernel\Debug\FileLinkFormatter" method="generateUrlFormat"/>
     </service>
-    <service id="web_profiler.debug_toolbar" class="Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener" public="false">
+    <service id="web_profiler.debug_toolbar" class="Symfony\Bundle\WebProfilerBundle\EventListener\WebDebugToolbarListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
       <argument type="service" id="twig"/>
@@ -1588,7 +1691,7 @@
       <argument>^/((index|app(_[\w]+)?)\.php/)?_wdt</argument>
       <argument type="service" id="web_profiler.csp.handler"/>
     </service>
-    <service id="monolog.logger" class="Symfony\Bridge\Monolog\Logger" public="false">
+    <service id="monolog.logger" class="Symfony\Bridge\Monolog\Logger">
       <argument>app</argument>
       <call method="pushProcessor">
         <argument type="service" id="debug.log_processor"/>
@@ -1613,26 +1716,26 @@
     </service>
     <service id="monolog.activation_strategy.not_found" class="Symfony\Bridge\Monolog\Handler\FingersCrossed\NotFoundActivationStrategy" abstract="true"/>
     <service id="monolog.handler.fingers_crossed.error_level_activation_strategy" class="Monolog\Handler\FingersCrossed\ErrorLevelActivationStrategy" abstract="true"/>
-    <service id="monolog.formatter.chrome_php" class="Monolog\Formatter\ChromePHPFormatter" public="false"/>
-    <service id="monolog.formatter.gelf_message" class="Monolog\Formatter\GelfMessageFormatter" public="false"/>
-    <service id="monolog.formatter.html" class="Monolog\Formatter\HtmlFormatter" public="false"/>
-    <service id="monolog.formatter.json" class="Monolog\Formatter\JsonFormatter" public="false"/>
-    <service id="monolog.formatter.line" class="Monolog\Formatter\LineFormatter" public="false"/>
-    <service id="monolog.formatter.loggly" class="Monolog\Formatter\LogglyFormatter" public="false"/>
-    <service id="monolog.formatter.normalizer" class="Monolog\Formatter\NormalizerFormatter" public="false"/>
-    <service id="monolog.formatter.scalar" class="Monolog\Formatter\ScalarFormatter" public="false"/>
-    <service id="monolog.formatter.wildfire" class="Monolog\Formatter\WildfireFormatter" public="false"/>
-    <service id="monolog.formatter.logstash" class="Monolog\Formatter\LogstashFormatter" public="false">
+    <service id="monolog.formatter.chrome_php" class="Monolog\Formatter\ChromePHPFormatter"/>
+    <service id="monolog.formatter.gelf_message" class="Monolog\Formatter\GelfMessageFormatter"/>
+    <service id="monolog.formatter.html" class="Monolog\Formatter\HtmlFormatter"/>
+    <service id="monolog.formatter.json" class="Monolog\Formatter\JsonFormatter"/>
+    <service id="monolog.formatter.line" class="Monolog\Formatter\LineFormatter"/>
+    <service id="monolog.formatter.loggly" class="Monolog\Formatter\LogglyFormatter"/>
+    <service id="monolog.formatter.normalizer" class="Monolog\Formatter\NormalizerFormatter"/>
+    <service id="monolog.formatter.scalar" class="Monolog\Formatter\ScalarFormatter"/>
+    <service id="monolog.formatter.wildfire" class="Monolog\Formatter\WildfireFormatter"/>
+    <service id="monolog.formatter.logstash" class="Monolog\Formatter\LogstashFormatter">
       <argument>app</argument>
     </service>
-    <service id="monolog.http_client" class="Symfony\Contracts\HttpClient\HttpClientInterface" public="false">
+    <service id="monolog.http_client" class="Symfony\Contracts\HttpClient\HttpClientInterface">
       <factory class="Symfony\Component\HttpClient\HttpClient" method="create"/>
     </service>
-    <service id="monolog.processor.psr_log_message" class="Monolog\Processor\PsrLogMessageProcessor" public="false"/>
+    <service id="monolog.processor.psr_log_message" class="Monolog\Processor\PsrLogMessageProcessor"/>
     <service id="monolog.handler.main" class="Monolog\Handler\StreamHandler">
       <tag name="kernel.reset" method="reset"/>
       <argument>/var/guestbook/guestbook/var/log/dev.log</argument>
-      <argument>100</argument>
+      <argument>debug</argument>
       <argument>true</argument>
       <argument>null</argument>
       <argument>false</argument>
@@ -1648,27 +1751,27 @@
       <argument type="collection"/>
       <argument type="collection"/>
     </service>
-    <service id=".6_HtmlDescriptor~IYG3Laf" class="Symfony\Component\VarDumper\Command\Descriptor\HtmlDescriptor" public="false">
+    <service id=".6_HtmlDescriptor~IYG3Laf" class="Symfony\Component\VarDumper\Command\Descriptor\HtmlDescriptor">
       <argument type="service" id="var_dumper.html_dumper"/>
     </service>
-    <service id=".5_CliDescriptor~IYG3Laf" class="Symfony\Component\VarDumper\Command\Descriptor\CliDescriptor" public="false">
+    <service id=".5_CliDescriptor~IYG3Laf" class="Symfony\Component\VarDumper\Command\Descriptor\CliDescriptor">
       <argument type="service" id="var_dumper.contextualized_cli_dumper.inner"/>
     </service>
-    <service id=".4_CliContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\CliContextProvider" public="false"/>
-    <service id=".3_RequestContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\RequestContextProvider" public="false">
+    <service id=".4_CliContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\CliContextProvider"/>
+    <service id=".3_RequestContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\RequestContextProvider">
       <argument type="service" id="request_stack"/>
     </service>
-    <service id=".2_SourceContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider" public="false">
+    <service id=".2_SourceContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider">
       <argument>UTF-8</argument>
       <argument>/var/guestbook/guestbook</argument>
       <argument type="service" id="debug.file_link_formatter" on-invalid="null"/>
     </service>
-    <service id=".1_SourceContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider" public="false">
+    <service id=".1_SourceContextProvider~IYG3Laf" class="Symfony\Component\VarDumper\Dumper\ContextProvider\SourceContextProvider">
       <argument>UTF-8</argument>
       <argument>/var/guestbook/guestbook</argument>
       <argument type="service" id="debug.file_link_formatter" on-invalid="null"/>
     </service>
-    <service id="twig.extension.dump" class="Symfony\Bridge\Twig\Extension\DumpExtension" public="false">
+    <service id="twig.extension.dump" class="Symfony\Bridge\Twig\Extension\DumpExtension">
       <tag name="twig.extension"/>
       <argument type="service" id="var_dumper.cloner"/>
       <argument type="service" id="var_dumper.html_dumper"/>
@@ -1681,7 +1784,7 @@
       <argument type="service" id="request_stack"/>
       <argument type="service" id="var_dumper.server_connection"/>
     </service>
-    <service id="debug.dump_listener" class="Symfony\Component\HttpKernel\EventListener\DumpListener" public="false">
+    <service id="debug.dump_listener" class="Symfony\Component\HttpKernel\EventListener\DumpListener">
       <tag name="kernel.event_subscriber"/>
       <argument type="service" id="var_dumper.cloner"/>
       <argument type="service" id="var_dumper.contextualized_cli_dumper"/>
@@ -1703,13 +1806,13 @@
         </argument>
       </call>
     </service>
-    <service id="var_dumper.contextualized_cli_dumper" class="Symfony\Component\VarDumper\Dumper\ContextualizedDumper" public="false">
+    <service id="var_dumper.contextualized_cli_dumper" class="Symfony\Component\VarDumper\Dumper\ContextualizedDumper">
       <argument type="service" id="var_dumper.contextualized_cli_dumper.inner"/>
       <argument type="collection">
         <argument key="source" type="service" id=".1_SourceContextProvider~IYG3Laf"/>
       </argument>
     </service>
-    <service id="var_dumper.html_dumper" class="Symfony\Component\VarDumper\Dumper\HtmlDumper" public="false">
+    <service id="var_dumper.html_dumper" class="Symfony\Component\VarDumper\Dumper\HtmlDumper">
       <argument>null</argument>
       <argument>UTF-8</argument>
       <argument>0</argument>
@@ -1719,7 +1822,7 @@
         </argument>
       </call>
     </service>
-    <service id="var_dumper.server_connection" class="Symfony\Component\VarDumper\Server\Connection" public="false">
+    <service id="var_dumper.server_connection" class="Symfony\Component\VarDumper\Server\Connection">
       <argument>tcp://%env(VAR_DUMPER_SERVER)%</argument>
       <argument type="collection">
         <argument key="source" type="service" id=".2_SourceContextProvider~IYG3Laf"/>
@@ -1727,13 +1830,14 @@
         <argument key="cli" type="service" id=".4_CliContextProvider~IYG3Laf"/>
       </argument>
     </service>
-    <service id="var_dumper.dump_server" class="Symfony\Component\VarDumper\Server\DumpServer" public="false">
+    <service id="var_dumper.dump_server" class="Symfony\Component\VarDumper\Server\DumpServer">
       <tag name="monolog.logger" channel="debug"/>
       <argument>tcp://%env(VAR_DUMPER_SERVER)%</argument>
       <argument type="service" id="monolog.logger.debug" on-invalid="null"/>
     </service>
-    <service id="var_dumper.command.server_dump" class="Symfony\Component\VarDumper\Command\ServerDumpCommand" public="false">
+    <service id="var_dumper.command.server_dump" class="Symfony\Component\VarDumper\Command\ServerDumpCommand">
       <tag name="console.command" command="server:dump"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="var_dumper.dump_server"/>
       <argument type="collection">
         <argument key="cli" type="service" id=".5_CliDescriptor~IYG3Laf"/>
@@ -1742,71 +1846,78 @@
       <call method="setName">
         <argument>server:dump</argument>
       </call>
+      <call method="setDescription">
+        <argument>Start a dump server that collects and displays dumps in a single place</argument>
+      </call>
     </service>
-    <service id="monolog.command.server_log" class="Symfony\Bridge\Monolog\Command\ServerLogCommand" public="false">
+    <service id="monolog.command.server_log" class="Symfony\Bridge\Monolog\Command\ServerLogCommand">
       <tag name="console.command" command="server:log"/>
+      <tag name="container.no_preload"/>
       <call method="setName">
         <argument>server:log</argument>
       </call>
+      <call method="setDescription">
+        <argument>Start a log server that displays logs in real time</argument>
+      </call>
     </service>
-    <service id="maker.file_manager" class="Symfony\Bundle\MakerBundle\FileManager" public="false">
+    <service id="maker.file_manager" class="Symfony\Bundle\MakerBundle\FileManager">
       <argument type="service" id="filesystem"/>
       <argument type="service" id="maker.autoloader_util"/>
       <argument type="service" id="maker.file_link_formatter"/>
       <argument>/var/guestbook/guestbook</argument>
       <argument>/var/guestbook/guestbook/templates</argument>
     </service>
-    <service id="maker.autoloader_finder" class="Symfony\Bundle\MakerBundle\Util\ComposerAutoloaderFinder" public="false">
+    <service id="maker.autoloader_finder" class="Symfony\Bundle\MakerBundle\Util\ComposerAutoloaderFinder">
       <argument>App</argument>
     </service>
-    <service id="maker.autoloader_util" class="Symfony\Bundle\MakerBundle\Util\AutoloaderUtil" public="false">
+    <service id="maker.autoloader_util" class="Symfony\Bundle\MakerBundle\Util\AutoloaderUtil">
       <argument type="service" id="maker.autoloader_finder"/>
     </service>
-    <service id="maker.file_link_formatter" class="Symfony\Bundle\MakerBundle\Util\MakerFileLinkFormatter" public="false">
+    <service id="maker.file_link_formatter" class="Symfony\Bundle\MakerBundle\Util\MakerFileLinkFormatter">
       <argument type="service" id="debug.file_link_formatter" on-invalid="ignore"/>
     </service>
-    <service id="maker.event_registry" class="Symfony\Bundle\MakerBundle\EventRegistry" public="false">
+    <service id="maker.event_registry" class="Symfony\Bundle\MakerBundle\EventRegistry">
       <argument type="service" id="debug.event_dispatcher"/>
     </service>
-    <service id="maker.console_error_listener" class="Symfony\Bundle\MakerBundle\Event\ConsoleErrorSubscriber" public="false">
+    <service id="maker.console_error_listener" class="Symfony\Bundle\MakerBundle\Event\ConsoleErrorSubscriber">
       <tag name="kernel.event_subscriber"/>
     </service>
-    <service id="maker.doctrine_helper" class="Symfony\Bundle\MakerBundle\Doctrine\DoctrineHelper" public="false">
+    <service id="maker.doctrine_helper" class="Symfony\Bundle\MakerBundle\Doctrine\DoctrineHelper">
       <argument>App\Entity</argument>
       <argument type="service" id="maker.php_compat_util"/>
       <argument>null</argument>
       <argument>false</argument>
     </service>
-    <service id="maker.auto_command.abstract" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false" abstract="true">
+    <service id="maker.auto_command.abstract" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" abstract="true">
       <argument></argument>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
     </service>
-    <service id="maker.generator" class="Symfony\Bundle\MakerBundle\Generator" public="false">
+    <service id="maker.generator" class="Symfony\Bundle\MakerBundle\Generator">
       <argument type="service" id="maker.file_manager"/>
       <argument>App</argument>
       <argument type="service" id="maker.php_compat_util"/>
       <argument type="service" id="maker.template_component_generator"/>
     </service>
-    <service id="maker.entity_class_generator" class="Symfony\Bundle\MakerBundle\Doctrine\EntityClassGenerator" public="false">
+    <service id="maker.entity_class_generator" class="Symfony\Bundle\MakerBundle\Doctrine\EntityClassGenerator">
       <argument type="service" id="maker.generator"/>
       <argument type="service" id="maker.doctrine_helper"/>
     </service>
-    <service id="maker.user_class_builder" class="Symfony\Bundle\MakerBundle\Security\UserClassBuilder" public="false"/>
-    <service id="maker.security_config_updater" class="Symfony\Bundle\MakerBundle\Security\SecurityConfigUpdater" public="false"/>
-    <service id="maker.renderer.form_type_renderer" class="Symfony\Bundle\MakerBundle\Renderer\FormTypeRenderer" public="false">
+    <service id="maker.user_class_builder" class="Symfony\Bundle\MakerBundle\Security\UserClassBuilder"/>
+    <service id="maker.security_config_updater" class="Symfony\Bundle\MakerBundle\Security\SecurityConfigUpdater"/>
+    <service id="maker.renderer.form_type_renderer" class="Symfony\Bundle\MakerBundle\Renderer\FormTypeRenderer">
       <argument type="service" id="maker.generator"/>
     </service>
-    <service id="maker.security_controller_builder" class="Symfony\Bundle\MakerBundle\Security\SecurityControllerBuilder" public="false">
+    <service id="maker.security_controller_builder" class="Symfony\Bundle\MakerBundle\Security\SecurityControllerBuilder">
       <argument type="service" id="maker.php_compat_util"/>
     </service>
-    <service id="maker.php_compat_util" class="Symfony\Bundle\MakerBundle\Util\PhpCompatUtil" public="false">
+    <service id="maker.php_compat_util" class="Symfony\Bundle\MakerBundle\Util\PhpCompatUtil">
       <argument type="service" id="maker.file_manager"/>
     </service>
-    <service id="maker.template_component_generator" class="Symfony\Bundle\MakerBundle\Util\TemplateComponentGenerator" public="false">
+    <service id="maker.template_component_generator" class="Symfony\Bundle\MakerBundle\Util\TemplateComponentGenerator">
       <argument type="service" id="maker.php_compat_util"/>
     </service>
-    <service id="maker.maker.make_authenticator" class="Symfony\Bundle\MakerBundle\Maker\MakeAuthenticator" public="false">
+    <service id="maker.maker.make_authenticator" class="Symfony\Bundle\MakerBundle\Maker\MakeAuthenticator">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.security_config_updater"/>
@@ -1814,23 +1925,23 @@
       <argument type="service" id="maker.doctrine_helper"/>
       <argument type="service" id="maker.security_controller_builder"/>
     </service>
-    <service id="maker.maker.make_command" class="Symfony\Bundle\MakerBundle\Maker\MakeCommand" public="false">
+    <service id="maker.maker.make_command" class="Symfony\Bundle\MakerBundle\Maker\MakeCommand">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_controller" class="Symfony\Bundle\MakerBundle\Maker\MakeController" public="false">
+    <service id="maker.maker.make_controller" class="Symfony\Bundle\MakerBundle\Maker\MakeController">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
     </service>
-    <service id="maker.maker.make_crud" class="Symfony\Bundle\MakerBundle\Maker\MakeCrud" public="false">
+    <service id="maker.maker.make_crud" class="Symfony\Bundle\MakerBundle\Maker\MakeCrud">
       <tag name="maker.command"/>
       <argument type="service" id="maker.doctrine_helper"/>
       <argument type="service" id="maker.renderer.form_type_renderer"/>
     </service>
-    <service id="maker.maker.make_docker_database" class="Symfony\Bundle\MakerBundle\Maker\MakeDockerDatabase" public="false">
+    <service id="maker.maker.make_docker_database" class="Symfony\Bundle\MakerBundle\Maker\MakeDockerDatabase">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
     </service>
-    <service id="maker.maker.make_entity" class="Symfony\Bundle\MakerBundle\Maker\MakeEntity" public="false">
+    <service id="maker.maker.make_entity" class="Symfony\Bundle\MakerBundle\Maker\MakeEntity">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.doctrine_helper"/>
@@ -1838,65 +1949,65 @@
       <argument type="service" id="maker.generator"/>
       <argument type="service" id="maker.entity_class_generator"/>
     </service>
-    <service id="maker.maker.make_fixtures" class="Symfony\Bundle\MakerBundle\Maker\MakeFixtures" public="false">
+    <service id="maker.maker.make_fixtures" class="Symfony\Bundle\MakerBundle\Maker\MakeFixtures">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_form" class="Symfony\Bundle\MakerBundle\Maker\MakeForm" public="false">
+    <service id="maker.maker.make_form" class="Symfony\Bundle\MakerBundle\Maker\MakeForm">
       <tag name="maker.command"/>
       <argument type="service" id="maker.doctrine_helper"/>
       <argument type="service" id="maker.renderer.form_type_renderer"/>
     </service>
-    <service id="maker.maker.make_functional_test" class="Symfony\Bundle\MakerBundle\Maker\MakeFunctionalTest" public="false">
+    <service id="maker.maker.make_functional_test" class="Symfony\Bundle\MakerBundle\Maker\MakeFunctionalTest">
       <tag name="maker.command"/>
-      <deprecated>The "%service_id%" service is deprecated, use "maker.maker.make_test" instead.</deprecated>
+      <deprecated package="symfony/maker-bundle" version="1.29">The "%service_id%" service is deprecated, use "maker.maker.make_test" instead.</deprecated>
     </service>
-    <service id="maker.maker.make_message" class="Symfony\Bundle\MakerBundle\Maker\MakeMessage" public="false">
+    <service id="maker.maker.make_message" class="Symfony\Bundle\MakerBundle\Maker\MakeMessage">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
     </service>
-    <service id="maker.maker.make_messenger_middleware" class="Symfony\Bundle\MakerBundle\Maker\MakeMessengerMiddleware" public="false">
+    <service id="maker.maker.make_messenger_middleware" class="Symfony\Bundle\MakerBundle\Maker\MakeMessengerMiddleware">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_registration_form" class="Symfony\Bundle\MakerBundle\Maker\MakeRegistrationForm" public="false">
+    <service id="maker.maker.make_registration_form" class="Symfony\Bundle\MakerBundle\Maker\MakeRegistrationForm">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.renderer.form_type_renderer"/>
       <argument type="service" id="router.default"/>
       <argument type="service" id="maker.doctrine_helper"/>
     </service>
-    <service id="maker.maker.make_reset_password" class="Symfony\Bundle\MakerBundle\Maker\MakeResetPassword" public="false">
+    <service id="maker.maker.make_reset_password" class="Symfony\Bundle\MakerBundle\Maker\MakeResetPassword">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.doctrine_helper"/>
       <argument type="service" id="maker.entity_class_generator"/>
     </service>
-    <service id="maker.maker.make_serializer_encoder" class="Symfony\Bundle\MakerBundle\Maker\MakeSerializerEncoder" public="false">
+    <service id="maker.maker.make_serializer_encoder" class="Symfony\Bundle\MakerBundle\Maker\MakeSerializerEncoder">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_serializer_normalizer" class="Symfony\Bundle\MakerBundle\Maker\MakeSerializerNormalizer" public="false">
+    <service id="maker.maker.make_serializer_normalizer" class="Symfony\Bundle\MakerBundle\Maker\MakeSerializerNormalizer">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_subscriber" class="Symfony\Bundle\MakerBundle\Maker\MakeSubscriber" public="false">
+    <service id="maker.maker.make_subscriber" class="Symfony\Bundle\MakerBundle\Maker\MakeSubscriber">
       <tag name="maker.command"/>
       <argument type="service" id="maker.event_registry"/>
     </service>
-    <service id="maker.maker.make_twig_extension" class="Symfony\Bundle\MakerBundle\Maker\MakeTwigExtension" public="false">
+    <service id="maker.maker.make_twig_extension" class="Symfony\Bundle\MakerBundle\Maker\MakeTwigExtension">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_test" class="Symfony\Bundle\MakerBundle\Maker\MakeTest" public="false">
+    <service id="maker.maker.make_test" class="Symfony\Bundle\MakerBundle\Maker\MakeTest">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_unit_test" class="Symfony\Bundle\MakerBundle\Maker\MakeUnitTest" public="false">
+    <service id="maker.maker.make_unit_test" class="Symfony\Bundle\MakerBundle\Maker\MakeUnitTest">
       <tag name="maker.command"/>
-      <deprecated>The "%service_id%" service is deprecated, use "maker.maker.make_test" instead.</deprecated>
+      <deprecated package="symfony/maker-bundle" version="1.29">The "%service_id%" service is deprecated, use "maker.maker.make_test" instead.</deprecated>
     </service>
-    <service id="maker.maker.make_validator" class="Symfony\Bundle\MakerBundle\Maker\MakeValidator" public="false">
-      <tag name="maker.command"/>
-    </service>
-    <service id="maker.maker.make_voter" class="Symfony\Bundle\MakerBundle\Maker\MakeVoter" public="false">
+    <service id="maker.maker.make_validator" class="Symfony\Bundle\MakerBundle\Maker\MakeValidator">
       <tag name="maker.command"/>
     </service>
-    <service id="maker.maker.make_user" class="Symfony\Bundle\MakerBundle\Maker\MakeUser" public="false">
+    <service id="maker.maker.make_voter" class="Symfony\Bundle\MakerBundle\Maker\MakeVoter">
+      <tag name="maker.command"/>
+    </service>
+    <service id="maker.maker.make_user" class="Symfony\Bundle\MakerBundle\Maker\MakeUser">
       <tag name="maker.command"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.user_class_builder"/>
@@ -1904,233 +2015,251 @@
       <argument type="service" id="maker.entity_class_generator"/>
       <argument type="service" id="maker.doctrine_helper"/>
     </service>
-    <service id="maker.maker.make_migration" class="Symfony\Bundle\MakerBundle\Maker\MakeMigration" public="false">
+    <service id="maker.maker.make_migration" class="Symfony\Bundle\MakerBundle\Maker\MakeMigration">
       <tag name="maker.command"/>
       <argument>/var/guestbook/guestbook</argument>
     </service>
-    <service id=".service_locator.CmORmuK" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ConferenceController" class="App\Controller\ConferenceController" autowire="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ConferenceController" class="App\Controller\ConferenceController" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Controller\ConferenceController" class="App\Controller\ConferenceController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".service_locator.gSv9zYw" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="base64" type="service" id="container.env_var_processor"/>
-        <argument key="bool" type="service" id="container.env_var_processor"/>
-        <argument key="const" type="service" id="container.env_var_processor"/>
-        <argument key="csv" type="service" id="container.env_var_processor"/>
-        <argument key="default" type="service" id="container.env_var_processor"/>
-        <argument key="file" type="service" id="container.env_var_processor"/>
-        <argument key="float" type="service" id="container.env_var_processor"/>
-        <argument key="int" type="service" id="container.env_var_processor"/>
-        <argument key="json" type="service" id="container.env_var_processor"/>
-        <argument key="key" type="service" id="container.env_var_processor"/>
-        <argument key="query_string" type="service" id="container.env_var_processor"/>
-        <argument key="require" type="service" id="container.env_var_processor"/>
-        <argument key="resolve" type="service" id="container.env_var_processor"/>
-        <argument key="string" type="service" id="container.env_var_processor"/>
-        <argument key="trim" type="service" id="container.env_var_processor"/>
-        <argument key="url" type="service" id="container.env_var_processor"/>
+        <argument key="base64" type="service_closure" id="container.env_var_processor"/>
+        <argument key="bool" type="service_closure" id="container.env_var_processor"/>
+        <argument key="const" type="service_closure" id="container.env_var_processor"/>
+        <argument key="csv" type="service_closure" id="container.env_var_processor"/>
+        <argument key="default" type="service_closure" id="container.env_var_processor"/>
+        <argument key="file" type="service_closure" id="container.env_var_processor"/>
+        <argument key="float" type="service_closure" id="container.env_var_processor"/>
+        <argument key="int" type="service_closure" id="container.env_var_processor"/>
+        <argument key="json" type="service_closure" id="container.env_var_processor"/>
+        <argument key="key" type="service_closure" id="container.env_var_processor"/>
+        <argument key="not" type="service_closure" id="container.env_var_processor"/>
+        <argument key="query_string" type="service_closure" id="container.env_var_processor"/>
+        <argument key="require" type="service_closure" id="container.env_var_processor"/>
+        <argument key="resolve" type="service_closure" id="container.env_var_processor"/>
+        <argument key="string" type="service_closure" id="container.env_var_processor"/>
+        <argument key="trim" type="service_closure" id="container.env_var_processor"/>
+        <argument key="url" type="service_closure" id="container.env_var_processor"/>
       </argument>
     </service>
-    <service id="maker.auto_command.make_auth" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:auth"/>
+    <service id="maker.auto_command.make_auth" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:auth" description="Creates a Guard authenticator of different flavors"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_authenticator"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a Guard authenticator of different flavors</argument>
-      </call>
       <call method="setName">
         <argument>make:auth</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a Guard authenticator of different flavors</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_command" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:command"/>
+    <service id="maker.auto_command.make_command" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:command" description="Creates a new console command class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_command"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new console command class</argument>
-      </call>
       <call method="setName">
         <argument>make:command</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new console command class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_controller" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:controller"/>
+    <service id="maker.auto_command.make_controller" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:controller" description="Creates a new controller class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_controller"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new controller class</argument>
-      </call>
       <call method="setName">
         <argument>make:controller</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new controller class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_crud" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:crud"/>
+    <service id="maker.auto_command.make_crud" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:crud" description="Creates CRUD for Doctrine entity class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_crud"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates CRUD for Doctrine entity class</argument>
-      </call>
       <call method="setName">
         <argument>make:crud</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates CRUD for Doctrine entity class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_docker_database" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:docker:database"/>
+    <service id="maker.auto_command.make_docker_database" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:docker:database" description="Adds a database container to your docker-compose.yaml file"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_docker_database"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Adds a database container to your docker-compose.yaml file</argument>
-      </call>
       <call method="setName">
         <argument>make:docker:database</argument>
       </call>
+      <call method="setDescription">
+        <argument>Adds a database container to your docker-compose.yaml file</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_entity" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:entity"/>
+    <service id="maker.auto_command.make_entity" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:entity" description="Creates or updates a Doctrine entity class, and optionally an API Platform resource"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_entity"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates or updates a Doctrine entity class, and optionally an API Platform resource</argument>
-      </call>
       <call method="setName">
         <argument>make:entity</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates or updates a Doctrine entity class, and optionally an API Platform resource</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_fixtures" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:fixtures"/>
+    <service id="maker.auto_command.make_fixtures" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:fixtures" description="Creates a new class to load Doctrine fixtures"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_fixtures"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new class to load Doctrine fixtures</argument>
-      </call>
       <call method="setName">
         <argument>make:fixtures</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new class to load Doctrine fixtures</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_form" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:form"/>
+    <service id="maker.auto_command.make_form" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:form" description="Creates a new form class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_form"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new form class</argument>
-      </call>
       <call method="setName">
         <argument>make:form</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new form class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_message" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:message"/>
+    <service id="maker.auto_command.make_message" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:message" description="Creates a new message and handler"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_message"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new message and handler</argument>
-      </call>
       <call method="setName">
         <argument>make:message</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new message and handler</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_messenger_middleware" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:messenger-middleware"/>
+    <service id="maker.auto_command.make_messenger_middleware" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:messenger-middleware" description="Creates a new messenger middleware"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_messenger_middleware"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new messenger middleware</argument>
-      </call>
       <call method="setName">
         <argument>make:messenger-middleware</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new messenger middleware</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_registration_form" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:registration-form"/>
+    <service id="maker.auto_command.make_registration_form" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:registration-form" description="Creates a new registration form system"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_registration_form"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new registration form system</argument>
-      </call>
       <call method="setName">
         <argument>make:registration-form</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new registration form system</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_reset_password" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:reset-password"/>
+    <service id="maker.auto_command.make_reset_password" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:reset-password" description="Create controller, entity, and repositories for use with symfonycasts/reset-password-bundle"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_reset_password"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Create controller, entity, and repositories for use with symfonycasts/reset-password-bundle</argument>
-      </call>
       <call method="setName">
         <argument>make:reset-password</argument>
       </call>
+      <call method="setDescription">
+        <argument>Create controller, entity, and repositories for use with symfonycasts/reset-password-bundle</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_serializer_encoder" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:serializer:encoder"/>
+    <service id="maker.auto_command.make_serializer_encoder" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:serializer:encoder" description="Creates a new serializer encoder class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_serializer_encoder"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new serializer encoder class</argument>
-      </call>
       <call method="setName">
         <argument>make:serializer:encoder</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new serializer encoder class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_serializer_normalizer" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:serializer:normalizer"/>
+    <service id="maker.auto_command.make_serializer_normalizer" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:serializer:normalizer" description="Creates a new serializer normalizer class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_serializer_normalizer"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new serializer normalizer class</argument>
-      </call>
       <call method="setName">
         <argument>make:serializer:normalizer</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new serializer normalizer class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_subscriber" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:subscriber"/>
+    <service id="maker.auto_command.make_subscriber" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:subscriber" description="Creates a new event subscriber class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_subscriber"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new event subscriber class</argument>
-      </call>
       <call method="setName">
         <argument>make:subscriber</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new event subscriber class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_twig_extension" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:twig-extension"/>
+    <service id="maker.auto_command.make_twig_extension" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:twig-extension" description="Creates a new Twig extension class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_twig_extension"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new Twig extension class</argument>
-      </call>
       <call method="setName">
         <argument>make:twig-extension</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new Twig extension class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_test" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:test"/>
+    <service id="maker.auto_command.make_test" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:test" description="Creates a new test class"/>
       <tag name="console.command" command="make:unit-test" description="Deprecated alias of &quot;make:test&quot;"/>
       <tag name="console.command" command="make:functional-test" description="Deprecated alias of &quot;make:test&quot;"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_test"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new test class</argument>
-      </call>
       <call method="setName">
         <argument>make:test</argument>
       </call>
@@ -2140,63 +2269,70 @@
           <argument>make:functional-test</argument>
         </argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new test class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_validator" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:validator"/>
+    <service id="maker.auto_command.make_validator" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:validator" description="Creates a new validator and constraint class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_validator"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new validator and constraint class</argument>
-      </call>
       <call method="setName">
         <argument>make:validator</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new validator and constraint class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_voter" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:voter"/>
+    <service id="maker.auto_command.make_voter" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:voter" description="Creates a new security voter class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_voter"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new security voter class</argument>
-      </call>
       <call method="setName">
         <argument>make:voter</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new security voter class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_user" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:user"/>
+    <service id="maker.auto_command.make_user" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:user" description="Creates a new security user class"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_user"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new security user class</argument>
-      </call>
       <call method="setName">
         <argument>make:user</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new security user class</argument>
+      </call>
     </service>
-    <service id="maker.auto_command.make_migration" class="Symfony\Bundle\MakerBundle\Command\MakerCommand" public="false">
-      <tag name="console.command" command="make:migration"/>
+    <service id="maker.auto_command.make_migration" class="Symfony\Bundle\MakerBundle\Command\MakerCommand">
+      <tag name="console.command" command="make:migration" description="Creates a new migration based on database changes"/>
+      <tag name="container.no_preload"/>
       <argument type="service" id="maker.maker.make_migration"/>
       <argument type="service" id="maker.file_manager"/>
       <argument type="service" id="maker.generator"/>
-      <call method="setDescription">
-        <argument>Creates a new migration based on database changes</argument>
-      </call>
       <call method="setName">
         <argument>make:migration</argument>
       </call>
+      <call method="setDescription">
+        <argument>Creates a new migration based on database changes</argument>
+      </call>
     </service>
-    <service id=".service_locator.I3K77mT" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.Xbsa8iG" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection"/>
     </service>
-    <service id=".service_locator._cmka45" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.lLv4pWF" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="inline" type="service" id="fragment.renderer.inline"/>
+        <argument key="inline" type="service_closure" id="fragment.renderer.inline"/>
       </argument>
     </service>
     <service id="debug.argument_resolver.request_attribute" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\TraceableValueResolver">
@@ -2333,69 +2469,86 @@
       <configurator class="Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddDebugLogProcessorPass" method="configureLogger"/>
     </service>
     <service id="monolog.handler.null_internal" class="Monolog\Handler\NullHandler"/>
-    <service id=".service_locator.Jt3qTZa" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.Ejq_DCG" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="routing.loader" type="service" id="routing.loader"/>
+        <argument key="http_kernel" type="service_closure" id="http_kernel" on-invalid="ignore"/>
+        <argument key="parameter_bag" type="service_closure" id="parameter_bag" on-invalid="ignore"/>
+        <argument key="request_stack" type="service_closure" id="request_stack" on-invalid="ignore"/>
+        <argument key="router" type="service_closure" id="router.default" on-invalid="ignore"/>
+        <argument key="session" type="service_closure" id="session" on-invalid="ignore"/>
+        <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.Jt3qTZa.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.Ejq_DCG.App\Controller\ConferenceController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator_context" id="App\Controller\ConferenceController"/>
+      <argument>App\Controller\ConferenceController</argument>
+      <argument type="service" id="service_container"/>
+      <factory service=".service_locator.Ejq_DCG" method="withContext"/>
+    </service>
+    <service id=".service_locator.LeJjUB." class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="routing.loader" type="service_closure" id="routing.loader"/>
+      </argument>
+    </service>
+    <service id=".service_locator.LeJjUB..router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="router.default"/>
       <argument>router.default</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.Jt3qTZa" method="withContext"/>
+      <factory service=".service_locator.LeJjUB." method="withContext"/>
     </service>
-    <service id=".service_locator..6JcfEa" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.oCg4uHe" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="router" type="service" id="router.default"/>
+        <argument key="router" type="service_closure" id="router.default"/>
       </argument>
     </service>
-    <service id=".service_locator..6JcfEa.router.cache_warmer" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.oCg4uHe.router.cache_warmer" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="router.cache_warmer"/>
       <argument>router.cache_warmer</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator..6JcfEa" method="withContext"/>
+      <factory service=".service_locator.oCg4uHe" method="withContext"/>
     </service>
-    <service id=".service_locator.R9AKutE" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.v.Wwsjy" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="twig" type="service" id="twig"/>
+        <argument key="twig" type="service_closure" id="twig"/>
       </argument>
     </service>
-    <service id=".service_locator.R9AKutE.twig.template_cache_warmer" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.v.Wwsjy.twig.template_cache_warmer" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="twig.template_cache_warmer"/>
       <argument>twig.template_cache_warmer</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.R9AKutE" method="withContext"/>
+      <factory service=".service_locator.v.Wwsjy" method="withContext"/>
     </service>
-    <service id=".service_locator.wnlveDj" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.XXv1IfR" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="reverse_container" type="service" id="reverse_container" on-invalid="ignore_uninitialized"/>
+        <argument key="reverse_container" type="service_closure" id="reverse_container" on-invalid="ignore_uninitialized"/>
       </argument>
     </service>
-    <service id=".service_locator.Bppmeg3" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.S4hE9mt" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="initialized_session" type="service" id="session" on-invalid="ignore_uninitialized"/>
-        <argument key="request_stack" type="service" id="request_stack"/>
-        <argument key="session" type="service" id="session" on-invalid="ignore"/>
-        <argument key="session_storage" type="service" id="session.storage.native" on-invalid="ignore"/>
+        <argument key="initialized_session" type="service_closure" id="session" on-invalid="ignore_uninitialized"/>
+        <argument key="request_stack" type="service_closure" id="request_stack"/>
+        <argument key="session" type="service_closure" id="session" on-invalid="ignore"/>
+        <argument key="session_storage" type="service_closure" id="session.storage.native" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.6czk.jg" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.XWmhzGa" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="kernel" type="service" id="kernel"/>
+        <argument key="kernel" type="service_closure" id="kernel"/>
       </argument>
     </service>
-    <service id="debug.event_dispatcher.inner" class="Symfony\Component\EventDispatcher\EventDispatcher" public="false"/>
-    <service id="debug.controller_resolver.inner" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver" public="false">
+    <service id="debug.event_dispatcher.inner" class="Symfony\Component\EventDispatcher\EventDispatcher"/>
+    <service id="debug.controller_resolver.inner" class="Symfony\Bundle\FrameworkBundle\Controller\ControllerResolver">
       <argument type="service" id="service_container"/>
       <argument type="service" id="monolog.logger.request" on-invalid="ignore"/>
     </service>
-    <service id="debug.argument_resolver.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver" public="false">
+    <service id="debug.argument_resolver.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver">
       <argument type="service" id="argument_metadata_factory"/>
       <argument type="iterator">
         <argument type="service" id="debug.argument_resolver.request_attribute"/>
@@ -2407,7 +2560,7 @@
         <argument type="service" id="debug.argument_resolver.not_tagged_controller"/>
       </argument>
     </service>
-    <service id="var_dumper.contextualized_cli_dumper.inner" class="Symfony\Component\VarDumper\Dumper\CliDumper" public="false">
+    <service id="var_dumper.contextualized_cli_dumper.inner" class="Symfony\Component\VarDumper\Dumper\CliDumper">
       <argument>null</argument>
       <argument>UTF-8</argument>
       <argument>0</argument>
@@ -2417,19 +2570,198 @@
         </argument>
       </call>
     </service>
-    <service id="debug.argument_resolver.request_attribute.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver" public="false"/>
-    <service id="debug.argument_resolver.request.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestValueResolver" public="false"/>
-    <service id="debug.argument_resolver.session.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\SessionValueResolver" public="false"/>
-    <service id="debug.argument_resolver.service.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver" public="false">
-      <argument type="service" id=".service_locator.I3K77mT"/>
+    <service id="debug.argument_resolver.request_attribute.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestAttributeValueResolver"/>
+    <service id="debug.argument_resolver.request.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\RequestValueResolver"/>
+    <service id="debug.argument_resolver.session.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\SessionValueResolver"/>
+    <service id="debug.argument_resolver.service.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
+      <argument type="service" id=".service_locator.Xbsa8iG"/>
     </service>
-    <service id="debug.argument_resolver.default.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver" public="false"/>
-    <service id="debug.argument_resolver.variadic.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver" public="false"/>
-    <service id="debug.argument_resolver.not_tagged_controller.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver" public="false">
-      <argument type="service" id=".service_locator.I3K77mT"/>
+    <service id="debug.argument_resolver.default.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver"/>
+    <service id="debug.argument_resolver.variadic.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver"/>
+    <service id="debug.argument_resolver.not_tagged_controller.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
+      <argument type="service" id=".service_locator.Xbsa8iG"/>
+    </service>
+    <service id=".twig.command.debug.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>debug:twig</argument>
+      <argument type="collection"/>
+      <argument>Show a list of twig functions, filters, globals and tests</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="twig.command.debug"/>
+    </service>
+    <service id=".twig.command.lint.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>lint:twig</argument>
+      <argument type="collection"/>
+      <argument>Lint a Twig template and outputs encountered errors</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="twig.command.lint"/>
+    </service>
+    <service id=".var_dumper.command.server_dump.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>server:dump</argument>
+      <argument type="collection"/>
+      <argument>Start a dump server that collects and displays dumps in a single place</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="var_dumper.command.server_dump"/>
+    </service>
+    <service id=".monolog.command.server_log.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>server:log</argument>
+      <argument type="collection"/>
+      <argument>Start a log server that displays logs in real time</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="monolog.command.server_log"/>
+    </service>
+    <service id=".maker.auto_command.make_auth.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:auth</argument>
+      <argument type="collection"/>
+      <argument>Creates a Guard authenticator of different flavors</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_auth"/>
+    </service>
+    <service id=".maker.auto_command.make_command.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:command</argument>
+      <argument type="collection"/>
+      <argument>Creates a new console command class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_command"/>
+    </service>
+    <service id=".maker.auto_command.make_controller.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:controller</argument>
+      <argument type="collection"/>
+      <argument>Creates a new controller class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_controller"/>
+    </service>
+    <service id=".maker.auto_command.make_crud.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:crud</argument>
+      <argument type="collection"/>
+      <argument>Creates CRUD for Doctrine entity class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_crud"/>
+    </service>
+    <service id=".maker.auto_command.make_docker_database.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:docker:database</argument>
+      <argument type="collection"/>
+      <argument>Adds a database container to your docker-compose.yaml file</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_docker_database"/>
+    </service>
+    <service id=".maker.auto_command.make_entity.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:entity</argument>
+      <argument type="collection"/>
+      <argument>Creates or updates a Doctrine entity class, and optionally an API Platform resource</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_entity"/>
+    </service>
+    <service id=".maker.auto_command.make_fixtures.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:fixtures</argument>
+      <argument type="collection"/>
+      <argument>Creates a new class to load Doctrine fixtures</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_fixtures"/>
+    </service>
+    <service id=".maker.auto_command.make_form.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:form</argument>
+      <argument type="collection"/>
+      <argument>Creates a new form class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_form"/>
+    </service>
+    <service id=".maker.auto_command.make_message.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:message</argument>
+      <argument type="collection"/>
+      <argument>Creates a new message and handler</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_message"/>
+    </service>
+    <service id=".maker.auto_command.make_messenger_middleware.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:messenger-middleware</argument>
+      <argument type="collection"/>
+      <argument>Creates a new messenger middleware</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_messenger_middleware"/>
+    </service>
+    <service id=".maker.auto_command.make_registration_form.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:registration-form</argument>
+      <argument type="collection"/>
+      <argument>Creates a new registration form system</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_registration_form"/>
+    </service>
+    <service id=".maker.auto_command.make_reset_password.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:reset-password</argument>
+      <argument type="collection"/>
+      <argument>Create controller, entity, and repositories for use with symfonycasts/reset-password-bundle</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_reset_password"/>
+    </service>
+    <service id=".maker.auto_command.make_serializer_encoder.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:serializer:encoder</argument>
+      <argument type="collection"/>
+      <argument>Creates a new serializer encoder class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_serializer_encoder"/>
+    </service>
+    <service id=".maker.auto_command.make_serializer_normalizer.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:serializer:normalizer</argument>
+      <argument type="collection"/>
+      <argument>Creates a new serializer normalizer class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_serializer_normalizer"/>
+    </service>
+    <service id=".maker.auto_command.make_subscriber.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:subscriber</argument>
+      <argument type="collection"/>
+      <argument>Creates a new event subscriber class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_subscriber"/>
+    </service>
+    <service id=".maker.auto_command.make_twig_extension.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:twig-extension</argument>
+      <argument type="collection"/>
+      <argument>Creates a new Twig extension class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_twig_extension"/>
+    </service>
+    <service id=".maker.auto_command.make_test.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:test</argument>
+      <argument type="collection">
+        <argument>make:unit-test</argument>
+        <argument>make:functional-test</argument>
+      </argument>
+      <argument>Creates a new test class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_test"/>
+    </service>
+    <service id=".maker.auto_command.make_validator.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:validator</argument>
+      <argument type="collection"/>
+      <argument>Creates a new validator and constraint class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_validator"/>
+    </service>
+    <service id=".maker.auto_command.make_voter.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:voter</argument>
+      <argument type="collection"/>
+      <argument>Creates a new security voter class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_voter"/>
+    </service>
+    <service id=".maker.auto_command.make_user.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:user</argument>
+      <argument type="collection"/>
+      <argument>Creates a new security user class</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_user"/>
+    </service>
+    <service id=".maker.auto_command.make_migration.lazy" class="Symfony\Component\Console\Command\LazyCommand">
+      <argument>make:migration</argument>
+      <argument type="collection"/>
+      <argument>Creates a new migration based on database changes</argument>
+      <argument>false</argument>
+      <argument type="service_closure" id="maker.auto_command.make_migration"/>
     </service>
     <service id="console.command_loader" class="Symfony\Component\Console\CommandLoader\ContainerCommandLoader" public="true">
-      <argument type="service" id=".service_locator.5P.A_La"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id=".service_locator.UdOLcoc"/>
       <argument type="collection">
         <argument key="about">console.command.about</argument>
         <argument key="assets:install">console.command.assets_install</argument>
@@ -2483,60 +2815,60 @@
         <argument key="make:migration">maker.auto_command.make_migration</argument>
       </argument>
     </service>
-    <service id=".service_locator.5P.A_La" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.UdOLcoc" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="console.command.about" type="service" id="console.command.about"/>
-        <argument key="console.command.assets_install" type="service" id="console.command.assets_install"/>
-        <argument key="console.command.cache_clear" type="service" id="console.command.cache_clear"/>
-        <argument key="console.command.cache_pool_clear" type="service" id="console.command.cache_pool_clear"/>
-        <argument key="console.command.cache_pool_delete" type="service" id="console.command.cache_pool_delete"/>
-        <argument key="console.command.cache_pool_list" type="service" id="console.command.cache_pool_list"/>
-        <argument key="console.command.cache_pool_prune" type="service" id="console.command.cache_pool_prune"/>
-        <argument key="console.command.cache_warmup" type="service" id="console.command.cache_warmup"/>
-        <argument key="console.command.config_debug" type="service" id="console.command.config_debug"/>
-        <argument key="console.command.config_dump_reference" type="service" id="console.command.config_dump_reference"/>
-        <argument key="console.command.container_debug" type="service" id="console.command.container_debug"/>
-        <argument key="console.command.container_lint" type="service" id="console.command.container_lint"/>
-        <argument key="console.command.debug_autowiring" type="service" id="console.command.debug_autowiring"/>
-        <argument key="console.command.event_dispatcher_debug" type="service" id="console.command.event_dispatcher_debug"/>
-        <argument key="console.command.router_debug" type="service" id="console.command.router_debug"/>
-        <argument key="console.command.router_match" type="service" id="console.command.router_match"/>
-        <argument key="console.command.secrets_decrypt_to_local" type="service" id="console.command.secrets_decrypt_to_local"/>
-        <argument key="console.command.secrets_encrypt_from_local" type="service" id="console.command.secrets_encrypt_from_local"/>
-        <argument key="console.command.secrets_generate_key" type="service" id="console.command.secrets_generate_key"/>
-        <argument key="console.command.secrets_list" type="service" id="console.command.secrets_list"/>
-        <argument key="console.command.secrets_remove" type="service" id="console.command.secrets_remove"/>
-        <argument key="console.command.secrets_set" type="service" id="console.command.secrets_set"/>
-        <argument key="console.command.yaml_lint" type="service" id="console.command.yaml_lint"/>
-        <argument key="maker.auto_command.make_auth" type="service" id="maker.auto_command.make_auth"/>
-        <argument key="maker.auto_command.make_command" type="service" id="maker.auto_command.make_command"/>
-        <argument key="maker.auto_command.make_controller" type="service" id="maker.auto_command.make_controller"/>
-        <argument key="maker.auto_command.make_crud" type="service" id="maker.auto_command.make_crud"/>
-        <argument key="maker.auto_command.make_docker_database" type="service" id="maker.auto_command.make_docker_database"/>
-        <argument key="maker.auto_command.make_entity" type="service" id="maker.auto_command.make_entity"/>
-        <argument key="maker.auto_command.make_fixtures" type="service" id="maker.auto_command.make_fixtures"/>
-        <argument key="maker.auto_command.make_form" type="service" id="maker.auto_command.make_form"/>
-        <argument key="maker.auto_command.make_message" type="service" id="maker.auto_command.make_message"/>
-        <argument key="maker.auto_command.make_messenger_middleware" type="service" id="maker.auto_command.make_messenger_middleware"/>
-        <argument key="maker.auto_command.make_migration" type="service" id="maker.auto_command.make_migration"/>
-        <argument key="maker.auto_command.make_registration_form" type="service" id="maker.auto_command.make_registration_form"/>
-        <argument key="maker.auto_command.make_reset_password" type="service" id="maker.auto_command.make_reset_password"/>
-        <argument key="maker.auto_command.make_serializer_encoder" type="service" id="maker.auto_command.make_serializer_encoder"/>
-        <argument key="maker.auto_command.make_serializer_normalizer" type="service" id="maker.auto_command.make_serializer_normalizer"/>
-        <argument key="maker.auto_command.make_subscriber" type="service" id="maker.auto_command.make_subscriber"/>
-        <argument key="maker.auto_command.make_test" type="service" id="maker.auto_command.make_test"/>
-        <argument key="maker.auto_command.make_twig_extension" type="service" id="maker.auto_command.make_twig_extension"/>
-        <argument key="maker.auto_command.make_user" type="service" id="maker.auto_command.make_user"/>
-        <argument key="maker.auto_command.make_validator" type="service" id="maker.auto_command.make_validator"/>
-        <argument key="maker.auto_command.make_voter" type="service" id="maker.auto_command.make_voter"/>
-        <argument key="monolog.command.server_log" type="service" id="monolog.command.server_log"/>
-        <argument key="twig.command.debug" type="service" id="twig.command.debug"/>
-        <argument key="twig.command.lint" type="service" id="twig.command.lint"/>
-        <argument key="var_dumper.command.server_dump" type="service" id="var_dumper.command.server_dump"/>
+        <argument key="console.command.about" type="service_closure" id="console.command.about"/>
+        <argument key="console.command.assets_install" type="service_closure" id="console.command.assets_install"/>
+        <argument key="console.command.cache_clear" type="service_closure" id="console.command.cache_clear"/>
+        <argument key="console.command.cache_pool_clear" type="service_closure" id="console.command.cache_pool_clear"/>
+        <argument key="console.command.cache_pool_prune" type="service_closure" id="console.command.cache_pool_prune"/>
+        <argument key="console.command.cache_pool_delete" type="service_closure" id="console.command.cache_pool_delete"/>
+        <argument key="console.command.cache_pool_list" type="service_closure" id="console.command.cache_pool_list"/>
+        <argument key="console.command.cache_warmup" type="service_closure" id="console.command.cache_warmup"/>
+        <argument key="console.command.config_debug" type="service_closure" id="console.command.config_debug"/>
+        <argument key="console.command.config_dump_reference" type="service_closure" id="console.command.config_dump_reference"/>
+        <argument key="console.command.container_debug" type="service_closure" id="console.command.container_debug"/>
+        <argument key="console.command.container_lint" type="service_closure" id="console.command.container_lint"/>
+        <argument key="console.command.debug_autowiring" type="service_closure" id="console.command.debug_autowiring"/>
+        <argument key="console.command.event_dispatcher_debug" type="service_closure" id="console.command.event_dispatcher_debug"/>
+        <argument key="console.command.router_debug" type="service_closure" id="console.command.router_debug"/>
+        <argument key="console.command.router_match" type="service_closure" id="console.command.router_match"/>
+        <argument key="console.command.yaml_lint" type="service_closure" id="console.command.yaml_lint"/>
+        <argument key="console.command.secrets_set" type="service_closure" id="console.command.secrets_set"/>
+        <argument key="console.command.secrets_remove" type="service_closure" id="console.command.secrets_remove"/>
+        <argument key="console.command.secrets_generate_key" type="service_closure" id="console.command.secrets_generate_key"/>
+        <argument key="console.command.secrets_list" type="service_closure" id="console.command.secrets_list"/>
+        <argument key="console.command.secrets_decrypt_to_local" type="service_closure" id="console.command.secrets_decrypt_to_local"/>
+        <argument key="console.command.secrets_encrypt_from_local" type="service_closure" id="console.command.secrets_encrypt_from_local"/>
+        <argument key="twig.command.debug" type="service_closure" id=".twig.command.debug.lazy"/>
+        <argument key="twig.command.lint" type="service_closure" id=".twig.command.lint.lazy"/>
+        <argument key="var_dumper.command.server_dump" type="service_closure" id=".var_dumper.command.server_dump.lazy"/>
+        <argument key="monolog.command.server_log" type="service_closure" id=".monolog.command.server_log.lazy"/>
+        <argument key="maker.auto_command.make_auth" type="service_closure" id=".maker.auto_command.make_auth.lazy"/>
+        <argument key="maker.auto_command.make_command" type="service_closure" id=".maker.auto_command.make_command.lazy"/>
+        <argument key="maker.auto_command.make_controller" type="service_closure" id=".maker.auto_command.make_controller.lazy"/>
+        <argument key="maker.auto_command.make_crud" type="service_closure" id=".maker.auto_command.make_crud.lazy"/>
+        <argument key="maker.auto_command.make_docker_database" type="service_closure" id=".maker.auto_command.make_docker_database.lazy"/>
+        <argument key="maker.auto_command.make_entity" type="service_closure" id=".maker.auto_command.make_entity.lazy"/>
+        <argument key="maker.auto_command.make_fixtures" type="service_closure" id=".maker.auto_command.make_fixtures.lazy"/>
+        <argument key="maker.auto_command.make_form" type="service_closure" id=".maker.auto_command.make_form.lazy"/>
+        <argument key="maker.auto_command.make_message" type="service_closure" id=".maker.auto_command.make_message.lazy"/>
+        <argument key="maker.auto_command.make_messenger_middleware" type="service_closure" id=".maker.auto_command.make_messenger_middleware.lazy"/>
+        <argument key="maker.auto_command.make_registration_form" type="service_closure" id=".maker.auto_command.make_registration_form.lazy"/>
+        <argument key="maker.auto_command.make_reset_password" type="service_closure" id=".maker.auto_command.make_reset_password.lazy"/>
+        <argument key="maker.auto_command.make_serializer_encoder" type="service_closure" id=".maker.auto_command.make_serializer_encoder.lazy"/>
+        <argument key="maker.auto_command.make_serializer_normalizer" type="service_closure" id=".maker.auto_command.make_serializer_normalizer.lazy"/>
+        <argument key="maker.auto_command.make_subscriber" type="service_closure" id=".maker.auto_command.make_subscriber.lazy"/>
+        <argument key="maker.auto_command.make_twig_extension" type="service_closure" id=".maker.auto_command.make_twig_extension.lazy"/>
+        <argument key="maker.auto_command.make_test" type="service_closure" id=".maker.auto_command.make_test.lazy"/>
+        <argument key="maker.auto_command.make_validator" type="service_closure" id=".maker.auto_command.make_validator.lazy"/>
+        <argument key="maker.auto_command.make_voter" type="service_closure" id=".maker.auto_command.make_voter.lazy"/>
+        <argument key="maker.auto_command.make_user" type="service_closure" id=".maker.auto_command.make_user.lazy"/>
+        <argument key="maker.auto_command.make_migration" type="service_closure" id=".maker.auto_command.make_migration.lazy"/>
       </argument>
     </service>
-    <service id="cache.app.recorder_inner" class="Symfony\Component\Cache\Adapter\FilesystemAdapter" public="false">
+    <service id="cache.app.recorder_inner" class="Symfony\Component\Cache\Adapter\FilesystemAdapter">
       <argument>LepHy6pwyE</argument>
       <argument>0</argument>
       <argument>/var/guestbook/guestbook/var/cache/dev/pools</argument>
@@ -2545,7 +2877,7 @@
         <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       </call>
     </service>
-    <service id="cache.system.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface" public="false">
+    <service id="cache.system.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface">
       <argument>nh20cMcA9o</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
@@ -2553,7 +2885,7 @@
       <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
-    <service id="cache.validator.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface" public="false">
+    <service id="cache.validator.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface">
       <argument>LU4Am9fFR6</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
@@ -2561,7 +2893,7 @@
       <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
-    <service id="cache.serializer.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface" public="false">
+    <service id="cache.serializer.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface">
       <argument>FN1L1LiPS5</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
@@ -2569,7 +2901,7 @@
       <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
-    <service id="cache.annotations.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface" public="false">
+    <service id="cache.annotations.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface">
       <argument>vpltTtQKOR</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
@@ -2577,7 +2909,7 @@
       <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
-    <service id="cache.property_info.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface" public="false">
+    <service id="cache.property_info.recorder_inner" class="Symfony\Component\Cache\Adapter\AdapterInterface">
       <argument>0gB3rnTahj</argument>
       <argument>0</argument>
       <argument>%container.build_id%</argument>
@@ -2585,61 +2917,65 @@
       <argument type="service" id="monolog.logger.cache" on-invalid="ignore"/>
       <factory class="Symfony\Component\Cache\Adapter\AbstractAdapter" method="createSystemCache"/>
     </service>
-    <service id=".service_locator.UCasskA" class="Symfony\Component\DependencyInjection\ServiceLocator" public="false">
+    <service id=".service_locator.HJisze0" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
-        <argument key="Symfony\Bridge\Twig\Extension\HttpKernelRuntime" type="service" id="twig.runtime.httpkernel"/>
+        <argument key="Symfony\Bridge\Twig\Extension\HttpKernelRuntime" type="service_closure" id="twig.runtime.httpkernel"/>
       </argument>
     </service>
-    <service id="Psr\Container\ContainerInterface" alias="service_container" public="false"/>
-    <service id="Symfony\Component\DependencyInjection\ContainerInterface" alias="service_container" public="false"/>
-    <service id="Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface" alias="parameter_bag" public="false"/>
-    <service id="Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface" alias="parameter_bag" public="false"/>
-    <service id="Symfony\Component\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher" public="false"/>
-    <service id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher" public="false"/>
-    <service id="Symfony\Component\HttpKernel\HttpKernelInterface" alias="http_kernel" public="false"/>
-    <service id="Symfony\Component\HttpFoundation\RequestStack" alias="request_stack" public="false"/>
-    <service id="Symfony\Component\HttpFoundation\UrlHelper" alias="url_helper" public="false"/>
-    <service id="Symfony\Component\HttpKernel\KernelInterface" alias="kernel" public="false"/>
-    <service id="Symfony\Component\Filesystem\Filesystem" alias="filesystem" public="false"/>
-    <service id="Symfony\Component\HttpKernel\Config\FileLocator" alias="file_locator" public="false"/>
-    <service id="Symfony\Component\DependencyInjection\ReverseContainer" alias="reverse_container" public="false"/>
-    <service id="Symfony\Component\String\Slugger\SluggerInterface" alias="slugger" public="false"/>
+    <service id="Psr\Container\ContainerInterface" alias="service_container">
+      <deprecated package="symfony/dependency-injection" version="5.1">The "%alias_id%" autowiring alias is deprecated. Define it explicitly in your app if you want to keep using it.</deprecated>
+    </service>
+    <service id="Symfony\Component\DependencyInjection\ContainerInterface" alias="service_container">
+      <deprecated package="symfony/dependency-injection" version="5.1">The "%alias_id%" autowiring alias is deprecated. Define it explicitly in your app if you want to keep using it.</deprecated>
+    </service>
+    <service id="Symfony\Component\DependencyInjection\ParameterBag\ContainerBagInterface" alias="parameter_bag"/>
+    <service id="Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface" alias="parameter_bag"/>
+    <service id="Symfony\Component\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher"/>
+    <service id="Symfony\Contracts\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher"/>
+    <service id="Symfony\Component\HttpKernel\HttpKernelInterface" alias="http_kernel"/>
+    <service id="Symfony\Component\HttpFoundation\RequestStack" alias="request_stack"/>
+    <service id="Symfony\Component\HttpFoundation\UrlHelper" alias="url_helper"/>
+    <service id="Symfony\Component\HttpKernel\KernelInterface" alias="kernel"/>
+    <service id="Symfony\Component\Filesystem\Filesystem" alias="filesystem"/>
+    <service id="Symfony\Component\HttpKernel\Config\FileLocator" alias="file_locator"/>
+    <service id="Symfony\Component\DependencyInjection\ReverseContainer" alias="reverse_container"/>
+    <service id="Symfony\Component\String\Slugger\SluggerInterface" alias="slugger"/>
     <service id="error_renderer.html" alias="twig.error_renderer.html"/>
     <service id="error_renderer" alias="twig.error_renderer.html"/>
     <service id="Psr\EventDispatcher\EventDispatcherInterface" alias="debug.event_dispatcher"/>
     <service id="Psr\Container\ContainerInterface $parameterBag" alias="parameter_bag"/>
     <service id="cache.app_clearer" alias="cache.default_clearer" public="true"/>
-    <service id="Psr\Cache\CacheItemPoolInterface" alias="cache.app" public="false"/>
-    <service id="Symfony\Component\Cache\Adapter\AdapterInterface" alias="cache.app" public="false"/>
-    <service id="Symfony\Contracts\Cache\CacheInterface" alias="cache.app" public="false"/>
-    <service id="Symfony\Contracts\Cache\TagAwareCacheInterface" alias="cache.app.taggable" public="false"/>
-    <service id="cache.default_redis_provider" alias=".cache_connection.GD_MSZC" public="false"/>
-    <service id="cache.default_memcached_provider" alias=".cache_connection.JKE6keX" public="false"/>
-    <service id="Symfony\Component\HttpFoundation\Session\SessionInterface" alias="session" public="false"/>
-    <service id="Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface" alias="session.storage.native" public="false"/>
-    <service id="SessionHandlerInterface" alias="session.handler.native_file" public="false"/>
-    <service id="Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface" alias="session.flash_bag" public="false"/>
-    <service id="session.storage.filesystem" alias="session.storage.mock_file" public="false"/>
+    <service id="Psr\Cache\CacheItemPoolInterface" alias="cache.app"/>
+    <service id="Symfony\Component\Cache\Adapter\AdapterInterface" alias="cache.app"/>
+    <service id="Symfony\Contracts\Cache\CacheInterface" alias="cache.app"/>
+    <service id="Symfony\Contracts\Cache\TagAwareCacheInterface" alias="cache.app.taggable"/>
+    <service id="cache.default_redis_provider" alias=".cache_connection.GD_MSZC"/>
+    <service id="cache.default_memcached_provider" alias=".cache_connection.JKE6keX"/>
+    <service id="Symfony\Component\HttpFoundation\Session\SessionInterface" alias="session"/>
+    <service id="Symfony\Component\HttpFoundation\Session\Storage\SessionStorageInterface" alias="session.storage.native"/>
+    <service id="SessionHandlerInterface" alias="session.handler.native_file"/>
+    <service id="Symfony\Component\HttpFoundation\Session\Flash\FlashBagInterface" alias="session.flash_bag"/>
+    <service id="session.storage.filesystem" alias="session.storage.mock_file"/>
     <service id="session.storage" alias="session.storage.native"/>
     <service id="session.handler" alias="session.handler.native_file"/>
-    <service id="Symfony\Component\HttpKernel\Debug\FileLinkFormatter" alias="debug.file_link_formatter" public="false"/>
-    <service id="Symfony\Component\Stopwatch\Stopwatch" alias="debug.stopwatch" public="false"/>
+    <service id="Symfony\Component\HttpKernel\Debug\FileLinkFormatter" alias="debug.file_link_formatter"/>
+    <service id="Symfony\Component\Stopwatch\Stopwatch" alias="debug.stopwatch"/>
     <service id="router" alias="router.default" public="true"/>
-    <service id="Symfony\Component\Routing\RouterInterface" alias="router.default" public="false"/>
-    <service id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" alias="router.default" public="false"/>
-    <service id="Symfony\Component\Routing\Matcher\UrlMatcherInterface" alias="router.default" public="false"/>
-    <service id="Symfony\Component\Routing\RequestContextAwareInterface" alias="router.default" public="false"/>
-    <service id="Symfony\Component\Routing\RequestContext" alias="router.request_context" public="false"/>
-    <service id="annotation_reader" alias="annotations.reader" public="false"/>
-    <service id="Doctrine\Common\Annotations\Reader" alias="annotations.reader" public="false"/>
-    <service id="Twig_Environment" alias="twig" public="false"/>
-    <service id="Twig\Environment" alias="twig" public="false"/>
+    <service id="Symfony\Component\Routing\RouterInterface" alias="router.default"/>
+    <service id="Symfony\Component\Routing\Generator\UrlGeneratorInterface" alias="router.default"/>
+    <service id="Symfony\Component\Routing\Matcher\UrlMatcherInterface" alias="router.default"/>
+    <service id="Symfony\Component\Routing\RequestContextAwareInterface" alias="router.default"/>
+    <service id="Symfony\Component\Routing\RequestContext" alias="router.request_context"/>
+    <service id="annotation_reader" alias="annotations.reader"/>
+    <service id="Doctrine\Common\Annotations\Reader" alias="annotations.reader"/>
+    <service id="Twig_Environment" alias="twig"/>
+    <service id="Twig\Environment" alias="twig"/>
     <service id="logger" alias="monolog.logger"/>
-    <service id="Psr\Log\LoggerInterface" alias="monolog.logger" public="false"/>
-    <service id="container.env_var_processors_locator" alias=".service_locator.CmORmuK" public="true"/>
-    <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem" public="false"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.I3K77mT"/>
+    <service id="Psr\Log\LoggerInterface" alias="monolog.logger"/>
+    <service id="container.env_var_processors_locator" alias=".service_locator.gSv9zYw" public="true"/>
+    <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.Xbsa8iG"/>
     <service id="twig.loader" alias="twig.loader.native_filesystem"/>
     <service id="Psr\Log\LoggerInterface $requestLogger" alias="monolog.logger.request"/>
     <service id="Psr\Log\LoggerInterface $consoleLogger" alias="monolog.logger.console"/>
@@ -2649,17 +2985,21 @@
     <service id="Psr\Log\LoggerInterface $eventLogger" alias="monolog.logger.event"/>
     <service id="Psr\Log\LoggerInterface $routerLogger" alias="monolog.logger.router"/>
     <service id="Psr\Log\LoggerInterface $debugLogger" alias="monolog.logger.debug"/>
+    <service id=".service_locator.0GV1BZZ" alias=".service_locator.gSv9zYw"/>
+    <service id=".service_locator.ULEwkxg" alias=".service_locator.Ejq_DCG"/>
     <service id="event_dispatcher" alias="debug.event_dispatcher" public="true"/>
-    <service id="controller_resolver" alias="debug.controller_resolver" public="false"/>
-    <service id="argument_resolver" alias="debug.argument_resolver" public="false"/>
-    <service id="twig.error_renderer.html.inner" alias="error_handler.error_renderer.html" public="false"/>
-    <service id="var_dumper.cli_dumper" alias="var_dumper.contextualized_cli_dumper" public="false"/>
-    <service id="argument_resolver.request_attribute" alias="debug.argument_resolver.request_attribute" public="false"/>
-    <service id="argument_resolver.request" alias="debug.argument_resolver.request" public="false"/>
-    <service id="argument_resolver.session" alias="debug.argument_resolver.session" public="false"/>
-    <service id="argument_resolver.service" alias="debug.argument_resolver.service" public="false"/>
-    <service id="argument_resolver.default" alias="debug.argument_resolver.default" public="false"/>
-    <service id="argument_resolver.variadic" alias="debug.argument_resolver.variadic" public="false"/>
-    <service id="argument_resolver.not_tagged_controller" alias="debug.argument_resolver.not_tagged_controller" public="false"/>
+    <service id="controller_resolver" alias="debug.controller_resolver"/>
+    <service id="argument_resolver" alias="debug.argument_resolver"/>
+    <service id="twig.error_renderer.html.inner" alias="error_handler.error_renderer.html"/>
+    <service id="var_dumper.cli_dumper" alias="var_dumper.contextualized_cli_dumper"/>
+    <service id="argument_resolver.request_attribute" alias="debug.argument_resolver.request_attribute"/>
+    <service id="argument_resolver.request" alias="debug.argument_resolver.request"/>
+    <service id="argument_resolver.session" alias="debug.argument_resolver.session"/>
+    <service id="argument_resolver.service" alias="debug.argument_resolver.service"/>
+    <service id="argument_resolver.default" alias="debug.argument_resolver.default"/>
+    <service id="argument_resolver.variadic" alias="debug.argument_resolver.variadic"/>
+    <service id="argument_resolver.not_tagged_controller" alias="debug.argument_resolver.not_tagged_controller"/>
+    <service id=".service_locator.yHtGbC6" alias=".service_locator.Ejq_DCG"/>
+    <service id=".service_locator.5QWEYtR" alias=".service_locator.S4hE9mt"/>
   </services>
 </container>

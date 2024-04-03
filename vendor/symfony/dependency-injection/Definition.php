@@ -22,20 +22,20 @@ use Symfony\Component\DependencyInjection\Exception\OutOfBoundsException;
  */
 class Definition
 {
+    private const DEFAULT_DEPRECATION_TEMPLATE = 'The "%service_id%" service is deprecated. You should stop using it, as it will be removed in the future.';
+
     private $class;
     private $file;
     private $factory;
     private $shared = true;
-    private $deprecated = false;
-    private $deprecationTemplate;
+    private $deprecation = [];
     private $properties = [];
     private $calls = [];
     private $instanceof = [];
     private $autoconfigured = false;
     private $configurator;
     private $tags = [];
-    private $public = true;
-    private $private = true;
+    private $public = false;
     private $synthetic = false;
     private $abstract = false;
     private $lazy = false;
@@ -46,8 +46,6 @@ class Definition
     private $errors = [];
 
     protected $arguments = [];
-
-    private static $defaultDeprecationTemplate = 'The "%service_id%" service is deprecated. You should stop using it, as it will be removed in the future.';
 
     /**
      * @internal
@@ -63,7 +61,7 @@ class Definition
      */
     public $decorationOnInvalid;
 
-    public function __construct(string $class = null, array $arguments = [])
+    public function __construct(?string $class = null, array $arguments = [])
     {
         if (null !== $class) {
             $this->setClass($class);
@@ -74,7 +72,7 @@ class Definition
     /**
      * Returns all changes tracked for the Definition object.
      *
-     * @return array An array of changes for this Definition
+     * @return array
      */
     public function getChanges()
     {
@@ -98,7 +96,7 @@ class Definition
     /**
      * Sets a factory.
      *
-     * @param string|array|Reference $factory A PHP function, reference or an array containing a class/Reference and a method to call
+     * @param string|array|Reference|null $factory A PHP function, reference or an array containing a class/Reference and a method to call
      *
      * @return $this
      */
@@ -106,7 +104,7 @@ class Definition
     {
         $this->changes['factory'] = true;
 
-        if (\is_string($factory) && false !== strpos($factory, '::')) {
+        if (\is_string($factory) && str_contains($factory, '::')) {
             $factory = explode('::', $factory, 2);
         } elseif ($factory instanceof Reference) {
             $factory = [$factory, '__invoke'];
@@ -148,7 +146,7 @@ class Definition
         if (null === $id) {
             $this->decoratedService = null;
         } else {
-            $this->decoratedService = [$id, $renamedId, (int) $priority];
+            $this->decoratedService = [$id, $renamedId, $priority];
 
             if (ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE !== $invalidBehavior) {
                 $this->decoratedService[] = $invalidBehavior;
@@ -185,7 +183,7 @@ class Definition
     /**
      * Gets the service class.
      *
-     * @return string|null The service class
+     * @return string|null
      */
     public function getClass()
     {
@@ -267,15 +265,15 @@ class Definition
     public function replaceArgument($index, $argument)
     {
         if (0 === \count($this->arguments)) {
-            throw new OutOfBoundsException('Cannot replace arguments if none have been configured yet.');
+            throw new OutOfBoundsException(sprintf('Cannot replace arguments for class "%s" if none have been configured yet.', $this->class));
         }
 
         if (\is_int($index) && ($index < 0 || $index > \count($this->arguments) - 1)) {
-            throw new OutOfBoundsException(sprintf('The index "%d" is not in the range [0, %d].', $index, \count($this->arguments) - 1));
+            throw new OutOfBoundsException(sprintf('The index "%d" is not in the range [0, %d] of the arguments of class "%s".', $index, \count($this->arguments) - 1, $this->class));
         }
 
         if (!\array_key_exists($index, $this->arguments)) {
-            throw new OutOfBoundsException(sprintf('The argument "%s" doesn\'t exist.', $index));
+            throw new OutOfBoundsException(sprintf('The argument "%s" doesn\'t exist in class "%s".', $index, $this->class));
         }
 
         $this->arguments[$index] = $argument;
@@ -301,7 +299,7 @@ class Definition
     /**
      * Gets the arguments to pass to the service constructor/factory method.
      *
-     * @return array The array of arguments
+     * @return array
      */
     public function getArguments()
     {
@@ -313,14 +311,14 @@ class Definition
      *
      * @param int|string $index
      *
-     * @return mixed The argument value
+     * @return mixed
      *
      * @throws OutOfBoundsException When the argument does not exist
      */
     public function getArgument($index)
     {
         if (!\array_key_exists($index, $this->arguments)) {
-            throw new OutOfBoundsException(sprintf('The argument "%s" doesn\'t exist.', $index));
+            throw new OutOfBoundsException(sprintf('The argument "%s" doesn\'t exist in class "%s".', $index, $this->class));
         }
 
         return $this->arguments[$index];
@@ -372,7 +370,6 @@ class Definition
         foreach ($this->calls as $i => $call) {
             if ($call[0] === $method) {
                 unset($this->calls[$i]);
-                break;
             }
         }
 
@@ -398,7 +395,7 @@ class Definition
     /**
      * Gets the methods to call after service initialization.
      *
-     * @return array An array of method calls
+     * @return array
      */
     public function getMethodCalls()
     {
@@ -466,7 +463,7 @@ class Definition
     /**
      * Returns all tags.
      *
-     * @return array An array of tags
+     * @return array
      */
     public function getTags()
     {
@@ -476,11 +473,11 @@ class Definition
     /**
      * Gets a tag by name.
      *
-     * @return array An array of attributes
+     * @return array
      */
     public function getTag(string $name)
     {
-        return isset($this->tags[$name]) ? $this->tags[$name] : [];
+        return $this->tags[$name] ?? [];
     }
 
     /**
@@ -546,7 +543,7 @@ class Definition
     /**
      * Gets the file to require before creating the service.
      *
-     * @return string|null The full pathname to include
+     * @return string|null
      */
     public function getFile()
     {
@@ -587,7 +584,6 @@ class Definition
         $this->changes['public'] = true;
 
         $this->public = $boolean;
-        $this->private = false;
 
         return $this;
     }
@@ -605,18 +601,15 @@ class Definition
     /**
      * Sets if this service is private.
      *
-     * When set, the "private" state has a higher precedence than "public".
-     * In version 3.4, a "private" service always remains publicly accessible,
-     * but triggers a deprecation notice when accessed from the container,
-     * so that the service can be made really private in 4.0.
-     *
      * @return $this
+     *
+     * @deprecated since Symfony 5.2, use setPublic() instead
      */
     public function setPrivate(bool $boolean)
     {
-        $this->private = $boolean;
+        trigger_deprecation('symfony/dependency-injection', '5.2', 'The "%s()" method is deprecated, use "setPublic()" instead.', __METHOD__);
 
-        return $this;
+        return $this->setPublic(!$boolean);
     }
 
     /**
@@ -626,7 +619,7 @@ class Definition
      */
     public function isPrivate()
     {
-        return $this->private;
+        return !$this->public;
     }
 
     /**
@@ -662,6 +655,10 @@ class Definition
     public function setSynthetic(bool $boolean)
     {
         $this->synthetic = $boolean;
+
+        if (!isset($this->changes['public'])) {
+            $this->setPublic(true);
+        }
 
         return $this;
     }
@@ -705,29 +702,48 @@ class Definition
      * Whether this definition is deprecated, that means it should not be called
      * anymore.
      *
-     * @param string $template Template message to use if the definition is deprecated
+     * @param string $package The name of the composer package that is triggering the deprecation
+     * @param string $version The version of the package that introduced the deprecation
+     * @param string $message The deprecation message to use
      *
      * @return $this
      *
      * @throws InvalidArgumentException when the message template is invalid
      */
-    public function setDeprecated(bool $status = true, string $template = null)
+    public function setDeprecated(/* string $package, string $version, string $message */)
     {
-        if (null !== $template) {
-            if (preg_match('#[\r\n]|\*/#', $template)) {
+        $args = \func_get_args();
+
+        if (\func_num_args() < 3) {
+            trigger_deprecation('symfony/dependency-injection', '5.1', 'The signature of method "%s()" requires 3 arguments: "string $package, string $version, string $message", not defining them is deprecated.', __METHOD__);
+
+            $status = $args[0] ?? true;
+
+            if (!$status) {
+                trigger_deprecation('symfony/dependency-injection', '5.1', 'Passing a null message to un-deprecate a node is deprecated.');
+            }
+
+            $message = (string) ($args[1] ?? null);
+            $package = $version = '';
+        } else {
+            $status = true;
+            $package = (string) $args[0];
+            $version = (string) $args[1];
+            $message = (string) $args[2];
+        }
+
+        if ('' !== $message) {
+            if (preg_match('#[\r\n]|\*/#', $message)) {
                 throw new InvalidArgumentException('Invalid characters found in deprecation template.');
             }
 
-            if (false === strpos($template, '%service_id%')) {
+            if (!str_contains($message, '%service_id%')) {
                 throw new InvalidArgumentException('The deprecation template must contain the "%service_id%" placeholder.');
             }
-
-            $this->deprecationTemplate = $template;
         }
 
         $this->changes['deprecated'] = true;
-
-        $this->deprecated = $status;
+        $this->deprecation = $status ? ['package' => $package, 'version' => $version, 'message' => $message ?: self::DEFAULT_DEPRECATION_TEMPLATE] : [];
 
         return $this;
     }
@@ -740,11 +756,13 @@ class Definition
      */
     public function isDeprecated()
     {
-        return $this->deprecated;
+        return (bool) $this->deprecation;
     }
 
     /**
      * Message to use if this definition is deprecated.
+     *
+     * @deprecated since Symfony 5.1, use "getDeprecation()" instead.
      *
      * @param string $id Service id relying on this definition
      *
@@ -752,13 +770,27 @@ class Definition
      */
     public function getDeprecationMessage(string $id)
     {
-        return str_replace('%service_id%', $id, $this->deprecationTemplate ?: self::$defaultDeprecationTemplate);
+        trigger_deprecation('symfony/dependency-injection', '5.1', 'The "%s()" method is deprecated, use "getDeprecation()" instead.', __METHOD__);
+
+        return $this->getDeprecation($id)['message'];
+    }
+
+    /**
+     * @param string $id Service id relying on this definition
+     */
+    public function getDeprecation(string $id): array
+    {
+        return [
+            'package' => $this->deprecation['package'],
+            'version' => $this->deprecation['version'],
+            'message' => str_replace('%service_id%', $id, $this->deprecation['message']),
+        ];
     }
 
     /**
      * Sets a configurator to call after the service is fully initialized.
      *
-     * @param string|array|Reference $configurator A PHP function, reference or an array containing a class/Reference and a method to call
+     * @param string|array|Reference|null $configurator A PHP function, reference or an array containing a class/Reference and a method to call
      *
      * @return $this
      */
@@ -766,7 +798,7 @@ class Definition
     {
         $this->changes['configurator'] = true;
 
-        if (\is_string($configurator) && false !== strpos($configurator, '::')) {
+        if (\is_string($configurator) && str_contains($configurator, '::')) {
             $configurator = explode('::', $configurator, 2);
         } elseif ($configurator instanceof Reference) {
             $configurator = [$configurator, '__invoke'];
@@ -780,7 +812,7 @@ class Definition
     /**
      * Gets the configurator to call after the service is fully initialized.
      *
-     * @return callable|array|null
+     * @return string|array|null
      */
     public function getConfigurator()
     {
@@ -814,7 +846,7 @@ class Definition
     /**
      * Gets bindings.
      *
-     * @return array|BoundArgument[]
+     * @return BoundArgument[]
      */
     public function getBindings()
     {

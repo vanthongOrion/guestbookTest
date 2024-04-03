@@ -30,7 +30,7 @@ class StreamedResponse extends Response
     protected $streamed;
     private $headersSent;
 
-    public function __construct(callable $callback = null, int $status = 200, array $headers = [])
+    public function __construct(?callable $callback = null, int $status = 200, array $headers = [])
     {
         parent::__construct(null, $status, $headers);
 
@@ -47,9 +47,13 @@ class StreamedResponse extends Response
      * @param callable|null $callback A valid PHP callback or null to set it later
      *
      * @return static
+     *
+     * @deprecated since Symfony 5.1, use __construct() instead.
      */
     public static function create($callback = null, int $status = 200, array $headers = [])
     {
+        trigger_deprecation('symfony/http-foundation', '5.1', 'The "%s()" method is deprecated, use "new %s()" instead.', __METHOD__, static::class);
+
         return new static($callback, $status, $headers);
     }
 
@@ -110,9 +114,9 @@ class StreamedResponse extends Response
     /**
      * {@inheritdoc}
      *
-     * @throws \LogicException when the content is not null
-     *
      * @return $this
+     *
+     * @throws \LogicException when the content is not null
      */
     public function setContent(?string $content)
     {
