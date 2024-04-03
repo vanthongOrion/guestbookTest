@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-require __DIR__.'/ContainerDg1IIsl/App_KernelDevDebugContainer.php';
+require __DIR__.'/ContainerJxUqpVG/App_KernelDevDebugContainer.php';
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -167,6 +167,11 @@ $classes[] = 'Symfony\Component\Routing\Loader\PhpFileLoader';
 $classes[] = 'Symfony\Component\Routing\Loader\GlobFileLoader';
 $classes[] = 'Symfony\Component\Routing\Loader\DirectoryLoader';
 $classes[] = 'Symfony\Component\Routing\Loader\ContainerLoader';
+$classes[] = 'Symfony\Bundle\FrameworkBundle\Routing\AnnotatedRouteControllerLoader';
+$classes[] = 'Doctrine\Common\Annotations\AnnotationReader';
+$classes[] = 'Doctrine\Common\Annotations\AnnotationRegistry';
+$classes[] = 'Symfony\Component\Routing\Loader\AnnotationDirectoryLoader';
+$classes[] = 'Symfony\Component\Routing\Loader\AnnotationFileLoader';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Secrets\DotenvVault';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Secrets\SodiumVault';
 $classes[] = 'Symfony\Component\DependencyInjection\ContainerInterface';
