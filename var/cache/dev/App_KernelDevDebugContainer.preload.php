@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerVlvSzJM\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\Container9tVWfUh\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -67,6 +67,7 @@ $classes[] = 'Symfony\Bundle\TwigBundle\DependencyInjection\Configurator\Environ
 $classes[] = 'Symfony\Component\HttpFoundation\Session\SessionInterface';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Session\DeprecatedSessionFactory';
 $classes[] = 'App\Controller\ConferenceController';
+$classes[] = 'App\Repository\CommentRepository';
 $classes[] = 'App\Repository\ConferenceRepository';
 $classes[] = 'Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Controller\RedirectController';

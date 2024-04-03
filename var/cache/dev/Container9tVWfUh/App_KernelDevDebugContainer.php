@@ -1,6 +1,6 @@
 <?php
 
-namespace ContainerTjGp9gd;
+namespace Container9tVWfUh;
 
 use Symfony\Component\DependencyInjection\Argument\RewindableGenerator;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -922,7 +922,13 @@ class App_KernelDevDebugContainer extends Container
         $a->setQuoteStrategy(new \Doctrine\ORM\Mapping\DefaultQuoteStrategy());
         $a->setEntityListenerResolver(new \Doctrine\Bundle\DoctrineBundle\Mapping\ContainerEntityListenerResolver($this));
         $a->setLazyGhostObjectEnabled(false);
-        $a->setRepositoryFactory(new \Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory(new \Symfony\Component\DependencyInjection\Argument\ServiceLocator($this->getService, [], [])));
+        $a->setRepositoryFactory(new \Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory(new \Symfony\Component\DependencyInjection\Argument\ServiceLocator($this->getService, [
+            'App\\Repository\\CommentRepository' => ['privates', 'App\\Repository\\CommentRepository', 'getCommentRepositoryService', false],
+            'App\\Repository\\ConferenceRepository' => ['privates', 'App\\Repository\\ConferenceRepository', 'getConferenceRepositoryService', false],
+        ], [
+            'App\\Repository\\CommentRepository' => '?',
+            'App\\Repository\\ConferenceRepository' => '?',
+        ])));
 
         $this->services['doctrine.orm.default_entity_manager'] = $instance = new \Doctrine\ORM\EntityManager(($this->services['doctrine.dbal.default_connection'] ?? $this->getDoctrine_Dbal_DefaultConnectionService()), $a, ($this->privates['doctrine.dbal.default_connection.event_manager'] ?? $this->getDoctrine_Dbal_DefaultConnection_EventManagerService()));
 
@@ -2329,6 +2335,42 @@ class App_KernelDevDebugContainer extends Container
         return $this->privates['.var_dumper.command.server_dump.lazy'] = new \Symfony\Component\Console\Command\LazyCommand('server:dump', [], 'Start a dump server that collects and displays dumps in a single place', false, function (): \Symfony\Component\VarDumper\Command\ServerDumpCommand {
             return ($this->privates['var_dumper.command.server_dump'] ?? $this->getVarDumper_Command_ServerDumpService());
         });
+    }
+
+    /**
+     * Gets the private 'App\Repository\CommentRepository' shared autowired service.
+     *
+     * @return \App\Repository\CommentRepository
+     */
+    protected function getCommentRepositoryService()
+    {
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/persistence/src/Persistence/ObjectRepository.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/collections/src/Selectable.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/orm/src/EntityRepository.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/doctrine-bundle/src/Repository/ServiceEntityRepositoryInterface.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/doctrine-bundle/src/Repository/LazyServiceEntityRepository.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/doctrine-bundle/src/Repository/ServiceEntityRepository.php';
+        include_once \dirname(__DIR__, 4).'/src/Repository/CommentRepository.php';
+
+        return $this->privates['App\\Repository\\CommentRepository'] = new \App\Repository\CommentRepository(($this->services['doctrine'] ?? $this->getDoctrineService()));
+    }
+
+    /**
+     * Gets the private 'App\Repository\ConferenceRepository' shared autowired service.
+     *
+     * @return \App\Repository\ConferenceRepository
+     */
+    protected function getConferenceRepositoryService()
+    {
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/persistence/src/Persistence/ObjectRepository.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/collections/src/Selectable.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/orm/src/EntityRepository.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/doctrine-bundle/src/Repository/ServiceEntityRepositoryInterface.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/doctrine-bundle/src/Repository/LazyServiceEntityRepository.php';
+        include_once \dirname(__DIR__, 4).'/vendor/doctrine/doctrine-bundle/src/Repository/ServiceEntityRepository.php';
+        include_once \dirname(__DIR__, 4).'/src/Repository/ConferenceRepository.php';
+
+        return $this->privates['App\\Repository\\ConferenceRepository'] = new \App\Repository\ConferenceRepository(($this->services['doctrine'] ?? $this->getDoctrineService()));
     }
 
     /**

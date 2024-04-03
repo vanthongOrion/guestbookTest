@@ -1,10 +1,12 @@
 <?php
 
-namespace ContainerTjGp9gd;
+namespace Container9tVWfUh;
 
 return [
     '.1_ServiceLocator~_ZtN9ch' => true,
     '.abstract.instanceof.App\\Controller\\ConferenceController' => true,
+    '.abstract.instanceof.App\\Repository\\CommentRepository' => true,
+    '.abstract.instanceof.App\\Repository\\ConferenceRepository' => true,
     '.cache_connection.GD_MSZC' => true,
     '.cache_connection.JKE6keX' => true,
     '.console.command.about.lazy' => true,
@@ -47,6 +49,8 @@ return [
     '.doctrine_migrations.version_command.lazy' => true,
     '.doctrine_migrations.versions_command.lazy' => true,
     '.errored..service_locator.xUrKPVU.Symfony\\Component\\Config\\Loader\\LoaderInterface' => true,
+    '.instanceof.Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepositoryInterface.0.App\\Repository\\CommentRepository' => true,
+    '.instanceof.Doctrine\\Bundle\\DoctrineBundle\\Repository\\ServiceEntityRepositoryInterface.0.App\\Repository\\ConferenceRepository' => true,
     '.instanceof.Symfony\\Bundle\\FrameworkBundle\\Controller\\AbstractController.0.App\\Controller\\ConferenceController' => true,
     '.instanceof.Symfony\\Contracts\\Service\\ServiceSubscriberInterface.0.App\\Controller\\ConferenceController' => true,
     '.maker.auto_command.make_auth.lazy' => true,
@@ -77,6 +81,7 @@ return [
     '.service_locator.0GV1BZZ' => true,
     '.service_locator.0ghLsew' => true,
     '.service_locator.4hi2aOY' => true,
+    '.service_locator.BdPb.H1' => true,
     '.service_locator.DVvIQ.I' => true,
     '.service_locator.HJisze0' => true,
     '.service_locator.KLVvNIq' => true,
@@ -86,7 +91,6 @@ return [
     '.service_locator.Uba_K9d' => true,
     '.service_locator.XWmhzGa' => true,
     '.service_locator.XXv1IfR' => true,
-    '.service_locator.Xbsa8iG' => true,
     '.service_locator.ZOHvDA0' => true,
     '.service_locator.bBRwv06' => true,
     '.service_locator.bT.2lOh' => true,
@@ -107,6 +111,8 @@ return [
     '.twig.command.debug.lazy' => true,
     '.twig.command.lint.lazy' => true,
     '.var_dumper.command.server_dump.lazy' => true,
+    'App\\Repository\\CommentRepository' => true,
+    'App\\Repository\\ConferenceRepository' => true,
     'Doctrine\\Bundle\\DoctrineBundle\\Dbal\\ManagerRegistryAwareConnectionProvider' => true,
     'Doctrine\\Common\\Annotations\\Reader' => true,
     'Doctrine\\Common\\Persistence\\ManagerRegistry' => true,
