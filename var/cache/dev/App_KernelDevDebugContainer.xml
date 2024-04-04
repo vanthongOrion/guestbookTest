@@ -19,6 +19,7 @@
       <parameter key="DoctrineMigrationsBundle">Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle</parameter>
       <parameter key="SecurityBundle">Symfony\Bundle\SecurityBundle\SecurityBundle</parameter>
       <parameter key="EasyAdminBundle">EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle</parameter>
+      <parameter key="TwigExtraBundle">Twig\Extra\TwigExtraBundle\TwigExtraBundle</parameter>
     </parameter>
     <parameter key="kernel.bundles_metadata" type="collection">
       <parameter key="FrameworkBundle" type="collection">
@@ -60,6 +61,10 @@
       <parameter key="EasyAdminBundle" type="collection">
         <parameter key="path">/var/guestbook/guestbook/vendor/easycorp/easyadmin-bundle/src</parameter>
         <parameter key="namespace">EasyCorp\Bundle\EasyAdminBundle</parameter>
+      </parameter>
+      <parameter key="TwigExtraBundle" type="collection">
+        <parameter key="path">/var/guestbook/guestbook/vendor/twig/extra-bundle</parameter>
+        <parameter key="namespace">Twig\Extra\TwigExtraBundle</parameter>
       </parameter>
     </parameter>
     <parameter key="kernel.charset">UTF-8</parameter>
@@ -1728,6 +1733,7 @@
           <argument>/var/guestbook/guestbook/vendor/doctrine/doctrine-bundle/translations</argument>
           <argument>/var/guestbook/guestbook/vendor/doctrine/doctrine-migrations-bundle/translations</argument>
           <argument>/var/guestbook/guestbook/vendor/symfony/security-bundle/translations</argument>
+          <argument>/var/guestbook/guestbook/vendor/twig/extra-bundle/translations</argument>
         </argument>
         <argument key="cache_vary" type="collection">
           <argument key="scanned_directories" type="collection">
@@ -1745,6 +1751,7 @@
             <argument>vendor/doctrine/doctrine-bundle/translations</argument>
             <argument>vendor/doctrine/doctrine-migrations-bundle/translations</argument>
             <argument>vendor/symfony/security-bundle/translations</argument>
+            <argument>vendor/twig/extra-bundle/translations</argument>
           </argument>
         </argument>
       </argument>
@@ -3286,6 +3293,24 @@
       </call>
       <call method="addRuntimeLoader">
         <argument type="service" id="twig.runtime_loader"/>
+      </call>
+      <call method="registerUndefinedFilterCallback">
+        <argument type="collection">
+          <argument type="service" id="twig.missing_extension_suggestor"/>
+          <argument>suggestFilter</argument>
+        </argument>
+      </call>
+      <call method="registerUndefinedFunctionCallback">
+        <argument type="collection">
+          <argument type="service" id="twig.missing_extension_suggestor"/>
+          <argument>suggestFunction</argument>
+        </argument>
+      </call>
+      <call method="registerUndefinedTokenParserCallback">
+        <argument type="collection">
+          <argument type="service" id="twig.missing_extension_suggestor"/>
+          <argument>suggestTag</argument>
+        </argument>
       </call>
       <configurator service="twig.configurator.environment" method="configure"/>
     </service>
@@ -5599,6 +5624,7 @@
       <tag name="assets.package" package="easyadmin.assets.package"/>
       <argument type="service" id="request_stack"/>
     </service>
+    <service id="twig.missing_extension_suggestor" class="Twig\Extra\TwigExtraBundle\MissingExtensionSuggestor"/>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\Admin\CommentCrudController" class="App\Controller\Admin\CommentCrudController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\Admin\CommentCrudController" class="App\Controller\Admin\CommentCrudController" autowire="true" abstract="true"/>
     <service id=".instanceof.EasyCorp\Bundle\EasyAdminBundle\Contracts\Controller\CrudControllerInterface.0.App\Controller\Admin\CommentCrudController" class="App\Controller\Admin\CommentCrudController" autowire="true" abstract="true"/>
@@ -6068,6 +6094,12 @@
         <argument key="crud" type="service_closure" id=".errored..service_locator.XpfeRo6.EasyCorp\Bundle\EasyAdminBundle\Config\Crud"/>
       </argument>
     </service>
+    <service id=".service_locator.OGjUKCt" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="filters" type="service_closure" id=".errored..service_locator.OGjUKCt.EasyCorp\Bundle\EasyAdminBundle\Config\Filters"/>
+      </argument>
+    </service>
     <service id=".service_locator.XdMPwIJ" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
@@ -6078,12 +6110,6 @@
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="actions" type="service_closure" id=".errored..service_locator.R8Qy2_..EasyCorp\Bundle\EasyAdminBundle\Config\Actions"/>
-      </argument>
-    </service>
-    <service id=".service_locator.OGjUKCt" class="Symfony\Component\DependencyInjection\ServiceLocator">
-      <tag name="container.service_locator"/>
-      <argument type="collection">
-        <argument key="filters" type="service_closure" id=".errored..service_locator.OGjUKCt.EasyCorp\Bundle\EasyAdminBundle\Config\Filters"/>
       </argument>
     </service>
     <service id=".service_locator.kEvhmk9" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -6134,7 +6160,14 @@
         <argument key="user" type="service_closure" id=".errored..service_locator.st3ASTR.Symfony\Component\Security\Core\User\UserInterface"/>
       </argument>
     </service>
-    <service id=".service_locator.p6OHjYB" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.VfKHQTh" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="conferenceRepository" type="service_closure" id="App\Repository\ConferenceRepository"/>
+        <argument key="twig" type="service_closure" id="twig"/>
+      </argument>
+    </service>
+    <service id=".service_locator.gElipA9" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Controller\Admin\CommentCrudController::autocomplete" type="service_closure" id=".service_locator.kEvhmk9"/>
@@ -6180,6 +6213,7 @@
         <argument key="App\Controller\Admin\ConferenceCrudController::renderFilters" type="service_closure" id=".service_locator.kEvhmk9"/>
         <argument key="App\Controller\Admin\ConferenceCrudController::updateEntity" type="service_closure" id=".service_locator.aKM6MDa"/>
         <argument key="App\Controller\Admin\DashboardController::configureUserMenu" type="service_closure" id=".service_locator.st3ASTR"/>
+        <argument key="App\Controller\ConferenceController::index" type="service_closure" id=".service_locator.VfKHQTh"/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.xUrKPVU"/>
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.xUrKPVU"/>
         <argument key="App\Controller\Admin\CommentCrudController:autocomplete" type="service_closure" id=".service_locator.kEvhmk9"/>
@@ -6225,6 +6259,7 @@
         <argument key="App\Controller\Admin\ConferenceCrudController:renderFilters" type="service_closure" id=".service_locator.kEvhmk9"/>
         <argument key="App\Controller\Admin\ConferenceCrudController:updateEntity" type="service_closure" id=".service_locator.aKM6MDa"/>
         <argument key="App\Controller\Admin\DashboardController:configureUserMenu" type="service_closure" id=".service_locator.st3ASTR"/>
+        <argument key="App\Controller\ConferenceController:index" type="service_closure" id=".service_locator.VfKHQTh"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.xUrKPVU"/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.xUrKPVU"/>
       </argument>
@@ -6509,10 +6544,10 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry">
       <argument>/var/guestbook/guestbook/var/cache/dev</argument>
       <argument type="collection">
-        <argument key="App\Controller\Admin\DashboardController">70fadbb</argument>
+        <argument key="App\Controller\Admin\DashboardController">365740d</argument>
       </argument>
       <argument type="collection">
-        <argument key="70fadbb">App\Controller\Admin\DashboardController</argument>
+        <argument key="365740d">App\Controller\Admin\DashboardController</argument>
       </argument>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry">
@@ -6521,16 +6556,16 @@
         <argument key="App\Controller\Admin\ConferenceCrudController">App\Entity\Conference</argument>
       </argument>
       <argument type="collection">
-        <argument key="App\Controller\Admin\CommentCrudController">336469f</argument>
-        <argument key="App\Controller\Admin\ConferenceCrudController">d44bda0</argument>
+        <argument key="App\Controller\Admin\CommentCrudController">9c38262</argument>
+        <argument key="App\Controller\Admin\ConferenceCrudController">33e5c0c</argument>
       </argument>
       <argument type="collection">
         <argument key="App\Entity\Comment">App\Controller\Admin\CommentCrudController</argument>
         <argument key="App\Entity\Conference">App\Controller\Admin\ConferenceCrudController</argument>
       </argument>
       <argument type="collection">
-        <argument key="336469f">App\Controller\Admin\CommentCrudController</argument>
-        <argument key="d44bda0">App\Controller\Admin\ConferenceCrudController</argument>
+        <argument key="9c38262">App\Controller\Admin\CommentCrudController</argument>
+        <argument key="33e5c0c">App\Controller\Admin\ConferenceCrudController</argument>
       </argument>
     </service>
     <service id=".service_locator.yY.p4P7" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -6791,12 +6826,12 @@
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator"/>
     </service>
     <service id="debug.argument_resolver.service.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
-      <argument type="service" id=".service_locator.p6OHjYB"/>
+      <argument type="service" id=".service_locator.gElipA9"/>
     </service>
     <service id="debug.argument_resolver.default.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver"/>
     <service id="debug.argument_resolver.variadic.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver"/>
     <service id="debug.argument_resolver.not_tagged_controller.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
-      <argument type="service" id=".service_locator.p6OHjYB"/>
+      <argument type="service" id=".service_locator.gElipA9"/>
     </service>
     <service id=".doctrine.orm.default_metadata_driver.inner" class="Doctrine\Persistence\Mapping\Driver\MappingDriverChain">
       <call method="addDriver">
@@ -6806,9 +6841,9 @@
     </service>
     <service id=".errored..service_locator.xUrKPVU.Symfony\Component\Config\Loader\LoaderInterface" class="Symfony\Component\Config\Loader\LoaderInterface"/>
     <service id=".errored..service_locator.XpfeRo6.EasyCorp\Bundle\EasyAdminBundle\Config\Crud" class="EasyCorp\Bundle\EasyAdminBundle\Config\Crud"/>
+    <service id=".errored..service_locator.OGjUKCt.EasyCorp\Bundle\EasyAdminBundle\Config\Filters" class="EasyCorp\Bundle\EasyAdminBundle\Config\Filters"/>
     <service id=".errored..service_locator.XdMPwIJ.EasyCorp\Bundle\EasyAdminBundle\Config\Assets" class="EasyCorp\Bundle\EasyAdminBundle\Config\Assets"/>
     <service id=".errored..service_locator.R8Qy2_..EasyCorp\Bundle\EasyAdminBundle\Config\Actions" class="EasyCorp\Bundle\EasyAdminBundle\Config\Actions"/>
-    <service id=".errored..service_locator.OGjUKCt.EasyCorp\Bundle\EasyAdminBundle\Config\Filters" class="EasyCorp\Bundle\EasyAdminBundle\Config\Filters"/>
     <service id=".errored..service_locator.kEvhmk9.EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext" class="EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext"/>
     <service id=".errored..service_locator.esmk6IF.EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto" class="EasyCorp\Bundle\EasyAdminBundle\Dto\BatchActionDto"/>
     <service id=".errored..service_locator.esmk6IF.EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext" class="EasyCorp\Bundle\EasyAdminBundle\Context\AdminContext"/>
@@ -7793,7 +7828,7 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Contracts\Orm\EntityPaginatorInterface" alias="EasyCorp\Bundle\EasyAdminBundle\Orm\EntityPaginator"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.gSv9zYw" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.p6OHjYB"/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.gElipA9"/>
     <service id="session" alias=".session.do-not-use" public="true">
       <deprecated package="symfony/framework-bundle" version="5.3">The "%alias_id%" service and "SessionInterface" alias are deprecated, use "$requestStack-&gt;getSession()" instead.</deprecated>
     </service>
@@ -7815,7 +7850,8 @@
     <service id=".service_locator.nTL_G5r" alias=".service_locator.esmk6IF"/>
     <service id=".service_locator.hNls88j" alias=".service_locator.ENGuM7_"/>
     <service id=".service_locator.6rNHno." alias=".service_locator.riFbGaB"/>
-    <service id=".service_locator.kBpmWwY" alias=".service_locator.p6OHjYB"/>
+    <service id=".service_locator.ltjh2dT" alias=".service_locator.VfKHQTh"/>
+    <service id=".service_locator.V1E2Qaj" alias=".service_locator.gElipA9"/>
     <service id=".service_locator.wKF4yn1" alias=".service_locator.19_mNxd"/>
     <service id=".service_locator.3l1LkXo" alias=".service_locator.ZWFYuib"/>
     <service id=".service_locator.4hi2aOY" alias=".service_locator.bBRwv06"/>
@@ -7846,9 +7882,9 @@
     <service id="doctrine.orm.default_metadata_driver" alias=".doctrine.orm.default_metadata_driver"/>
     <service id=".service_locator.uo5c0SP" alias=".service_locator.xUrKPVU"/>
     <service id=".service_locator.Wy8wQ7q" alias=".service_locator.XpfeRo6"/>
+    <service id=".service_locator.O2PHm7f" alias=".service_locator.OGjUKCt"/>
     <service id=".service_locator.mZvIess" alias=".service_locator.XdMPwIJ"/>
     <service id=".service_locator.Uj8JhjH" alias=".service_locator.R8Qy2_."/>
-    <service id=".service_locator.O2PHm7f" alias=".service_locator.OGjUKCt"/>
     <service id=".service_locator.nmHbo7B" alias=".service_locator.kEvhmk9"/>
     <service id=".service_locator.6l7iQLM" alias=".service_locator.esmk6IF"/>
     <service id=".service_locator.NMJNzQ2" alias=".service_locator.ENGuM7_"/>
@@ -7856,6 +7892,7 @@
     <service id=".service_locator.UNSqNV2" alias=".service_locator.riFbGaB"/>
     <service id=".service_locator.YGHh.DA" alias=".service_locator.W.c5h2_"/>
     <service id=".service_locator..Z_8zjg" alias=".service_locator.st3ASTR"/>
+    <service id=".service_locator.POOKFzC" alias=".service_locator.VfKHQTh"/>
     <service id=".service_locator.H4sisVk" alias=".service_locator.Pq4jHMT"/>
     <service id=".service_locator.25uFhYR" alias=".service_locator.1hOIQqn"/>
     <service id=".service_locator..SlaM3H" alias=".service_locator.mx0UMmY"/>
