@@ -99,4 +99,9 @@ class Comment
     {
         return (string) $this->getEmail();
     }
+
+    public function getphotofilename(): string 
+    {
+        return 1;
+    }
 }
