@@ -13,6 +13,7 @@ use EasyCorp\Bundle\EasyAdminBundle\Field\TextareaField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\IdField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextEditorField;
 use EasyCorp\Bundle\EasyAdminBundle\Field\TextField;
+use EasyCorp\Bundle\EasyAdminBundle\Filter\EntityFilter;
 
 class CommentCrudController extends AbstractCrudController
 {
@@ -29,6 +30,12 @@ class CommentCrudController extends AbstractCrudController
            ->setSearchFields(['author', 'text', 'email'])
            ->setDefaultSort(['createAt'=>'DESC'])
         ;
+    }
+
+    public function configureFilters(Filters $filters): Filters
+    {
+        return $filters
+            ->add(EntityFilter::new('conference'));
     }
 
     public function configureFields(string $pageName): iterable
