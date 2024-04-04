@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerVoM6B9A\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerTMZ6E17\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -24,6 +24,7 @@ $classes[] = 'Doctrine\Bundle\MigrationsBundle\DoctrineMigrationsBundle';
 $classes[] = 'Symfony\Bundle\SecurityBundle\SecurityBundle';
 $classes[] = 'EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle';
 $classes[] = 'Twig\Extra\TwigExtraBundle\TwigExtraBundle';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle';
 $classes[] = 'Symfony\Component\HttpKernel\CacheClearer\ChainCacheClearer';
 $classes[] = 'Symfony\Component\Filesystem\Filesystem';
 $classes[] = 'Symfony\Component\Form\FormFactory';
@@ -41,7 +42,6 @@ $classes[] = 'Symfony\Component\HttpKernel\DataCollector\EventDataCollector';
 $classes[] = 'Symfony\Component\Cache\DataCollector\CacheDataCollector';
 $classes[] = 'Symfony\Component\Translation\DataCollector\TranslationDataCollector';
 $classes[] = 'Symfony\Bundle\SecurityBundle\DataCollector\SecurityDataCollector';
-$classes[] = 'Symfony\Component\Security\Core\Role\RoleHierarchy';
 $classes[] = 'Symfony\Bridge\Twig\DataCollector\TwigDataCollector';
 $classes[] = 'Doctrine\Bundle\DoctrineBundle\DataCollector\DoctrineDataCollector';
 $classes[] = 'EasyCorp\Bundle\EasyAdminBundle\Inspector\DataCollector';
@@ -174,6 +174,7 @@ $classes[] = 'Symfony\Component\Cache\Adapter\PhpArrayAdapter';
 $classes[] = 'Doctrine\Common\Annotations\PsrCachedReader';
 $classes[] = 'Doctrine\Common\Annotations\AnnotationReader';
 $classes[] = 'Doctrine\Common\Annotations\AnnotationRegistry';
+$classes[] = 'Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory';
 $classes[] = 'Symfony\Component\Cache\Adapter\TraceableAdapter';
 $classes[] = 'Symfony\Component\Cache\Adapter\AdapterInterface';
 $classes[] = 'Symfony\Component\Cache\Adapter\AbstractAdapter';
@@ -282,13 +283,14 @@ $classes[] = 'Symfony\Component\Form\Extension\Validator\Type\UploadValidatorExt
 $classes[] = 'Symfony\Bridge\Doctrine\Form\DoctrineOrmTypeGuesser';
 $classes[] = 'Symfony\Component\Form\Extension\Validator\ValidatorTypeGuesser';
 $classes[] = 'Symfony\Component\HttpKernel\Fragment\InlineFragmentRenderer';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\Request\ArgumentNameConverter';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\EventListener\IsGrantedListener';
 $classes[] = 'Symfony\Component\Runtime\Runner\Symfony\HttpKernelRunner';
 $classes[] = 'Symfony\Component\Runtime\Runner\Symfony\ResponseRunner';
 $classes[] = 'Symfony\Component\Runtime\SymfonyRuntime';
 $classes[] = 'Symfony\Component\HttpKernel\HttpKernel';
 $classes[] = 'Symfony\Component\HttpKernel\Controller\TraceableArgumentResolver';
 $classes[] = 'Symfony\Component\HttpKernel\Controller\ArgumentResolver';
-$classes[] = 'Symfony\Component\HttpKernel\ControllerMetadata\ArgumentMetadataFactory';
 $classes[] = 'App\Kernel';
 $classes[] = 'Symfony\Component\HttpKernel\EventListener\LocaleAwareListener';
 $classes[] = 'Symfony\Component\HttpKernel\EventListener\LocaleListener';
@@ -342,9 +344,19 @@ $classes[] = 'Symfony\Component\Security\Http\EventListener\CsrfTokenClearingLog
 $classes[] = 'Symfony\Component\Security\Http\Logout\LogoutUrlGenerator';
 $classes[] = 'Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory';
 $classes[] = 'Symfony\Component\Security\Http\RememberMe\ResponseListener';
+$classes[] = 'Symfony\Component\Security\Core\Role\RoleHierarchy';
 $classes[] = 'Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage';
 $classes[] = 'Symfony\Component\Security\Core\User\InMemoryUserProvider';
 $classes[] = 'Symfony\Component\Security\Core\Validator\Constraints\UserPasswordValidator';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\EventListener\HttpCacheListener';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\EventListener\ControllerListener';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\EventListener\ParamConverterListener';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\ParamConverterManager';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DoctrineParamConverter';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\Request\ParamConverter\DateTimeParamConverter';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\EventListener\SecurityListener';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\EventListener\TemplateListener';
+$classes[] = 'Sensio\Bundle\FrameworkExtraBundle\Templating\TemplateGuesser';
 $classes[] = 'Symfony\Component\DependencyInjection\ContainerInterface';
 $classes[] = 'Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter';
 $classes[] = 'Symfony\Component\HttpFoundation\Session\SessionFactory';
