@@ -362,6 +362,11 @@
         <argument type="service" id=".service_locator.mx0UMmY.App\Controller\ConferenceController"/>
       </call>
     </service>
+    <service id="App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" autoconfigure="true">
+      <tag name="doctrine.orm.entity_listener" event="prePersist" method="" lazy="" entity_manager="" entity="App\Entity\Conference" priority=""/>
+      <tag name="doctrine.orm.entity_listener" event="preUpdate" method="" lazy="" entity_manager="" entity="App\Entity\Conference" priority=""/>
+      <argument type="service" id="slugger"/>
+    </service>
     <service id="App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" autoconfigure="true">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
@@ -4454,11 +4459,29 @@
       <tag name="cache.pool"/>
       <argument type="service" id="cache.doctrine.orm.default.query.recorder_inner"/>
     </service>
-    <service id="doctrine.orm.default_entity_listener_resolver" class="Doctrine\Bundle\DoctrineBundle\Mapping\ContainerEntityListenerResolver">
-      <argument type="service" id="service_container"/>
+    <service id="doctrine.orm.default_entity_listener_resolver" class="Doctrine\Bundle\DoctrineBundle\Mapping\ContainerEntityListenerResolver" public="true">
+      <argument type="service" id=".service_locator.91JWM4x"/>
+      <call method="registerService">
+        <argument>App\EntityListener\ConferenceEntityListener</argument>
+        <argument>App\EntityListener\ConferenceEntityListener</argument>
+      </call>
+      <call method="registerService">
+        <argument>App\EntityListener\ConferenceEntityListener</argument>
+        <argument>App\EntityListener\ConferenceEntityListener</argument>
+      </call>
     </service>
     <service id="doctrine.orm.default_listeners.attach_entity_listeners" class="Doctrine\ORM\Tools\AttachEntityListenersListener">
       <tag name="doctrine.event_listener" event="loadClassMetadata"/>
+      <call method="addEntityListener">
+        <argument>App\Entity\Conference</argument>
+        <argument>App\EntityListener\ConferenceEntityListener</argument>
+        <argument>prePersist</argument>
+      </call>
+      <call method="addEntityListener">
+        <argument>App\Entity\Conference</argument>
+        <argument>App\EntityListener\ConferenceEntityListener</argument>
+        <argument>preUpdate</argument>
+      </call>
     </service>
     <service id="doctrine.orm.default_manager_configurator" class="Doctrine\Bundle\DoctrineBundle\ManagerConfigurator">
       <argument type="collection"/>
@@ -5800,6 +5823,8 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\ConferenceController" class="App\Controller\ConferenceController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\ConferenceController" class="App\Controller\ConferenceController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\ConferenceController" class="App\Controller\ConferenceController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.App\EntityListener\ConferenceEntityListener.0.App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\EventDispatcher\EventSubscriberInterface.0.App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CommentRepository" class="App\Repository\CommentRepository" autowire="true" abstract="true"/>
@@ -6659,6 +6684,12 @@
         <argument key="doctrine.orm.listeners.doctrine_dbal_cache_adapter_schema_subscriber" type="service_closure" id="doctrine.orm.listeners.doctrine_dbal_cache_adapter_schema_subscriber"/>
         <argument key="doctrine.orm.listeners.doctrine_token_provider_schema_subscriber" type="service_closure" id="doctrine.orm.listeners.doctrine_token_provider_schema_subscriber"/>
         <argument key="doctrine.orm.listeners.pdo_cache_adapter_doctrine_schema_subscriber" type="service_closure" id="doctrine.orm.listeners.pdo_cache_adapter_doctrine_schema_subscriber"/>
+      </argument>
+    </service>
+    <service id=".service_locator.91JWM4x" class="Symfony\Component\DependencyInjection\ServiceLocator">
+      <tag name="container.service_locator"/>
+      <argument type="collection">
+        <argument key="App\EntityListener\ConferenceEntityListener" type="service_closure" id="App\EntityListener\ConferenceEntityListener"/>
       </argument>
     </service>
     <service id=".service_locator.BdPb.H1" class="Symfony\Component\DependencyInjection\ServiceLocator">

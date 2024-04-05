@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerP2uXxmi\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerIN26yPZ\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -100,6 +100,7 @@ $classes[] = 'App\Controller\Admin\CommentCrudController';
 $classes[] = 'App\Controller\Admin\ConferenceCrudController';
 $classes[] = 'App\Controller\Admin\DashboardController';
 $classes[] = 'App\Controller\ConferenceController';
+$classes[] = 'App\EntityListener\ConferenceEntityListener';
 $classes[] = 'App\EventSubscriber\TwigEventSubscriber';
 $classes[] = 'App\Repository\CommentRepository';
 $classes[] = 'App\Repository\ConferenceRepository';
@@ -234,6 +235,7 @@ $classes[] = 'Doctrine\DBAL\Tools\DsnParser';
 $classes[] = 'Symfony\Bridge\Doctrine\ContainerAwareEventManager';
 $classes[] = 'Doctrine\Bundle\DoctrineBundle\Middleware\BacktraceDebugDataHolder';
 $classes[] = 'Doctrine\ORM\Mapping\Driver\AttributeDriver';
+$classes[] = 'Doctrine\Bundle\DoctrineBundle\Mapping\ContainerEntityListenerResolver';
 $classes[] = 'Doctrine\ORM\Proxy\Autoloader';
 $classes[] = 'Doctrine\ORM\EntityManager';
 $classes[] = 'Doctrine\ORM\Configuration';
@@ -241,7 +243,6 @@ $classes[] = 'Doctrine\Bundle\DoctrineBundle\Mapping\MappingDriver';
 $classes[] = 'Doctrine\Persistence\Mapping\Driver\MappingDriverChain';
 $classes[] = 'Doctrine\ORM\Mapping\UnderscoreNamingStrategy';
 $classes[] = 'Doctrine\ORM\Mapping\DefaultQuoteStrategy';
-$classes[] = 'Doctrine\Bundle\DoctrineBundle\Mapping\ContainerEntityListenerResolver';
 $classes[] = 'Doctrine\Bundle\DoctrineBundle\Repository\ContainerRepositoryFactory';
 $classes[] = 'Doctrine\Bundle\DoctrineBundle\ManagerConfigurator';
 $classes[] = 'Symfony\Bridge\Doctrine\PropertyInfo\DoctrineExtractor';

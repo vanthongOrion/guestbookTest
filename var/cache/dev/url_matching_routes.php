@@ -45,7 +45,7 @@ return [
         149 => [[['_route' => '_profiler_exception_css', '_controller' => 'web_profiler.controller.exception_panel::stylesheet'], ['token'], null, null, false, false, null]],
         159 => [[['_route' => '_profiler', '_controller' => 'web_profiler.controller.profiler::panelAction'], ['token'], null, null, false, true, null]],
         189 => [
-            [['_route' => 'conference', '_controller' => 'App\\Controller\\ConferenceController::show'], ['id'], null, null, false, true, null],
+            [['_route' => 'conference', '_controller' => 'App\\Controller\\ConferenceController::show'], ['slug'], null, null, false, true, null],
             [null, null, null, null, false, false, 0],
         ],
     ],
