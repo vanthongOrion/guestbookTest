@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
 use App\Entity\Conference;
+use App\form\CommentFormType;
 use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -47,15 +49,19 @@ class ConferenceController extends AbstractController
      */
     public function show(Request $request, Conference $conference, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository)
     {
+        $comment = new Comment();
+        $form = $this->createForm(CommentFormType::class, $comment);
+        
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($conference,$offset);
         
         return new Response($this->twig->render('conference/show.html.twig',[
-            'conferences' => $conferenceRepository->findAll(),
-            'conference'  => $conference,
-            'comments'    => $paginator,
-            'previous'    => $offset - CommentRepository::PAGINATOR_PER_PAGE,
-            'next'        => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'conferences'  => $conferenceRepository->findAll(),
+            'conference'   => $conference,
+            'comments'     => $paginator,
+            'previous'     => $offset - CommentRepository::PAGINATOR_PER_PAGE,
+            'next'         => min(count($paginator), $offset + CommentRepository::PAGINATOR_PER_PAGE),
+            'comment_form' => $form->createView(),
             ]));
     }
 }
