@@ -18,4 +18,6 @@ return [
     'admin' => [[], ['_controller' => 'App\\Controller\\Admin\\DashboardController::index'], [], [['text', '/admin']], [], [], []],
     'homepage' => [[], ['_controller' => 'App\\Controller\\ConferenceController::index'], [], [['text', '/']], [], [], []],
     'conference' => [['slug'], ['_controller' => 'App\\Controller\\ConferenceController::show'], [], [['variable', '/', '[^/]++', 'slug', true], ['text', '/conference']], [], [], []],
+    'app_login' => [[], ['_controller' => 'App\\Controller\\SecurityController::login'], [], [['text', '/login']], [], [], []],
+    'app_logout' => [[], ['_controller' => 'App\\Controller\\SecurityController::logout'], [], [['text', '/logout']], [], [], []],
 ];
