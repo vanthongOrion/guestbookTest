@@ -16,6 +16,11 @@ if (!\class_exists(App_KernelDevDebugContainer::class, false)) {
 
 return new \ContainerP2uXxmi\App_KernelDevDebugContainer([
     'container.build_hash' => 'P2uXxmi',
+<<<<<<< HEAD
     'container.build_id' => '3eb43b78',
     'container.build_time' => 1712287350,
+=======
+    'container.build_id' => 'a20044ab',
+    'container.build_time' => 1712288220,
+>>>>>>> a24fbb68db8bcbfe5bfa8be0635063b7b259aa9c
 ], __DIR__.\DIRECTORY_SEPARATOR.'ContainerP2uXxmi');
