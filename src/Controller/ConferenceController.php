@@ -9,6 +9,7 @@ use App\Repository\CommentRepository;
 use App\Repository\ConferenceRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -50,13 +51,21 @@ class ConferenceController extends AbstractController
     /**
      * @Route("/conference/{slug}", name="conference")
      */
-    public function show(Request $request, Conference $conference, CommentRepository $commentRepository, ConferenceRepository $conferenceRepository)
+    public function show(Request $request,
+                         Conference $conference,
+                         CommentRepository $commentRepository, 
+                         ConferenceRepository $conferenceRepository,
+                         #[Autowire('%photo_dir%')] string $photoDir)
     {
         $comment = new Comment();
         $form = $this->createForm(CommentFormType::class, $comment);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $comment->setConference($conference);
+            
+            if ($photo = $form['photo']->getData()) {
+                $filename = bin2hex(random_bytes(6).'.'.$photo->guessExtension());
+            }
 
             $this->entityManager->persist($comment);
             $this->entityManager->flush();
