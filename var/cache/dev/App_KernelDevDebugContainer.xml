@@ -365,6 +365,8 @@
     <service id="App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" autoconfigure="true">
       <tag name="kernel.event_subscriber"/>
       <tag name="container.hot_path"/>
+      <argument type="service" id="twig"/>
+      <argument type="service" id="App\Repository\ConferenceRepository"/>
     </service>
     <service id="App\Repository\CommentRepository" class="App\Repository\CommentRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
