@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerIN26yPZ\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\Container7hSd7FY\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -102,6 +102,7 @@ $classes[] = 'App\Controller\Admin\DashboardController';
 $classes[] = 'App\Controller\ConferenceController';
 $classes[] = 'App\EntityListener\ConferenceEntityListener';
 $classes[] = 'App\EventSubscriber\TwigEventSubscriber';
+$classes[] = 'App\Form\CommentFormType';
 $classes[] = 'App\Repository\CommentRepository';
 $classes[] = 'App\Repository\ConferenceRepository';
 $classes[] = 'Doctrine\Bundle\DoctrineBundle\Controller\ProfilerController';

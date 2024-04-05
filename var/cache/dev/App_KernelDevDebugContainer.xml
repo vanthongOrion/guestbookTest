@@ -358,6 +358,7 @@
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
       <argument type="service" id="twig"/>
+      <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.mx0UMmY.App\Controller\ConferenceController"/>
       </call>
@@ -372,6 +373,9 @@
       <tag name="container.hot_path"/>
       <argument type="service" id="twig"/>
       <argument type="service" id="App\Repository\ConferenceRepository"/>
+    </service>
+    <service id="App\Form\CommentFormType" class="App\Form\CommentFormType" autowire="true" autoconfigure="true">
+      <tag name="form.type"/>
     </service>
     <service id="App\Repository\CommentRepository" class="App\Repository\CommentRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
@@ -1020,10 +1024,12 @@
       <argument type="service" id="form.registry"/>
       <argument type="collection">
         <argument>Symfony\Component\Form\Extension\Core\Type</argument>
+        <argument>App\Form</argument>
         <argument>Symfony\Bridge\Doctrine\Form\Type</argument>
         <argument>EasyCorp\Bundle\EasyAdminBundle\Form\Type</argument>
       </argument>
       <argument type="collection">
+        <argument>App\Form\CommentFormType</argument>
         <argument>Symfony\Component\Form\Extension\Core\Type\FormType</argument>
         <argument>Symfony\Component\Form\Extension\Core\Type\ChoiceType</argument>
         <argument>Symfony\Component\Form\Extension\Core\Type\FileType</argument>
@@ -2932,7 +2938,7 @@
       <argument type="service" id="form.registry"/>
     </service>
     <service id="form.extension" class="Symfony\Component\Form\Extension\DependencyInjection\DependencyInjectionExtension">
-      <argument type="service" id=".service_locator.ZWFYuib"/>
+      <argument type="service" id=".service_locator.qktDSP1"/>
       <argument type="collection">
         <argument key="Symfony\Component\Form\Extension\Core\Type\FormType" type="iterator">
           <argument type="service" id="form.type_extension.form.transformation_failure_handling"/>
@@ -3308,6 +3314,11 @@
     <service id="data_collector.translation" class="Symfony\Component\Translation\DataCollector\TranslationDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/translation.html.twig" id="translation" priority="275"/>
       <argument type="service" id="translator.data_collector"/>
+    </service>
+    <service id="mime_types" class="Symfony\Component\Mime\MimeTypes">
+      <call method="setDefault">
+        <argument type="service" id="mime_types"/>
+      </call>
     </service>
     <service id="twig" class="Twig\Environment" public="true">
       <tag name="container.preload" class="Twig\Cache\FilesystemCache"/>
@@ -5827,6 +5838,8 @@
     <service id=".abstract.instanceof.App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\EventDispatcher\EventSubscriberInterface.0.App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Symfony\Component\Form\FormTypeInterface.0.App\Form\CommentFormType" class="App\Form\CommentFormType" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\Form\CommentFormType" class="App\Form\CommentFormType" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\CommentRepository" class="App\Repository\CommentRepository" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Repository\CommentRepository" class="App\Repository\CommentRepository" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepositoryInterface.0.App\Repository\ConferenceRepository" class="App\Repository\ConferenceRepository" autowire="true" abstract="true"/>
@@ -6529,9 +6542,10 @@
       <argument type="service" id="debug.argument_resolver.not_tagged_controller.inner"/>
       <argument type="service" id="debug.stopwatch"/>
     </service>
-    <service id=".service_locator.ZWFYuib" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.qktDSP1" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
+        <argument key="App\Form\CommentFormType" type="service_closure" id="App\Form\CommentFormType"/>
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Form\Type\CrudFormType" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\Form\Type\CrudFormType"/>
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Form\Type\FileUploadType" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\Form\Type\FileUploadType"/>
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Form\Type\FiltersFormType" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\Form\Type\FiltersFormType"/>
@@ -7985,6 +7999,8 @@
     <service id="form.choice_list_factory" alias="form.choice_list_factory.cached"/>
     <service id="Symfony\Component\Validator\Validator\ValidatorInterface" alias="debug.validator"/>
     <service id="validator.mapping.class_metadata_factory" alias="debug.validator"/>
+    <service id="Symfony\Component\Mime\MimeTypesInterface" alias="mime_types"/>
+    <service id="Symfony\Component\Mime\MimeTypeGuesserInterface" alias="mime_types"/>
     <service id="Twig_Environment" alias="twig"/>
     <service id="Twig\Environment" alias="twig"/>
     <service id="logger" alias="monolog.logger"/>
@@ -8068,7 +8084,7 @@
     <service id=".service_locator.JH1UPMC" alias=".service_locator.VocWbTp"/>
     <service id=".service_locator.2WC_Q3I" alias=".service_locator.JKKPBxK"/>
     <service id=".service_locator.wKF4yn1" alias=".service_locator.19_mNxd"/>
-    <service id=".service_locator.3l1LkXo" alias=".service_locator.ZWFYuib"/>
+    <service id=".service_locator.WxMFOz5" alias=".service_locator.qktDSP1"/>
     <service id=".service_locator.4hi2aOY" alias=".service_locator.bBRwv06"/>
     <service id=".service_locator.O24_MAy" alias=".service_locator.yY.p4P7"/>
     <service id=".service_locator.v_Ds_92" alias=".service_locator.Pq4jHMT"/>
