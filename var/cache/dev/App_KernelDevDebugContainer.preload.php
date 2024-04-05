@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\Container7hSd7FY\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerTMlsq1Q\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -96,6 +96,7 @@ $classes[] = 'Symfony\Component\Validator\Validator\ValidatorInterface';
 $classes[] = 'Symfony\Component\HttpFoundation\RequestMatcher';
 $classes[] = 'Symfony\Component\HttpFoundation\Session\SessionInterface';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Session\DeprecatedSessionFactory';
+$classes[] = 'current';
 $classes[] = 'App\Controller\Admin\CommentCrudController';
 $classes[] = 'App\Controller\Admin\ConferenceCrudController';
 $classes[] = 'App\Controller\Admin\DashboardController';
