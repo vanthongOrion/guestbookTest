@@ -357,6 +357,7 @@
     <service id="App\Controller\ConferenceController" class="App\Controller\ConferenceController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
+      <argument type="service" id="twig"/>
       <call method="setContainer">
         <argument type="service" id=".service_locator.mx0UMmY.App\Controller\ConferenceController"/>
       </call>
@@ -6305,22 +6306,20 @@
         <argument key="user" type="service_closure" id=".errored..service_locator.st3ASTR.Symfony\Component\Security\Core\User\UserInterface"/>
       </argument>
     </service>
-    <service id=".service_locator.VfKHQTh" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.Lwh3nbS" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="conferenceRepository" type="service_closure" id="App\Repository\ConferenceRepository"/>
-        <argument key="twig" type="service_closure" id="twig"/>
       </argument>
     </service>
-    <service id=".service_locator.7ivkO2i" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.zl24D2_" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="commentRepository" type="service_closure" id="App\Repository\CommentRepository"/>
-        <argument key="conference" type="service_closure" id=".errored..service_locator.7ivkO2i.App\Entity\Conference"/>
-        <argument key="twig" type="service_closure" id="twig"/>
+        <argument key="conference" type="service_closure" id=".errored..service_locator.zl24D2_.App\Entity\Conference"/>
       </argument>
     </service>
-    <service id=".service_locator.PQjZh4." class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.wyVr2iw" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="App\Controller\Admin\CommentCrudController::autocomplete" type="service_closure" id=".service_locator.kEvhmk9"/>
@@ -6366,8 +6365,8 @@
         <argument key="App\Controller\Admin\ConferenceCrudController::renderFilters" type="service_closure" id=".service_locator.kEvhmk9"/>
         <argument key="App\Controller\Admin\ConferenceCrudController::updateEntity" type="service_closure" id=".service_locator.aKM6MDa"/>
         <argument key="App\Controller\Admin\DashboardController::configureUserMenu" type="service_closure" id=".service_locator.st3ASTR"/>
-        <argument key="App\Controller\ConferenceController::index" type="service_closure" id=".service_locator.VfKHQTh"/>
-        <argument key="App\Controller\ConferenceController::show" type="service_closure" id=".service_locator.7ivkO2i"/>
+        <argument key="App\Controller\ConferenceController::index" type="service_closure" id=".service_locator.Lwh3nbS"/>
+        <argument key="App\Controller\ConferenceController::show" type="service_closure" id=".service_locator.zl24D2_"/>
         <argument key="kernel::loadRoutes" type="service_closure" id=".service_locator.xUrKPVU"/>
         <argument key="kernel::registerContainerConfiguration" type="service_closure" id=".service_locator.xUrKPVU"/>
         <argument key="App\Controller\Admin\CommentCrudController:autocomplete" type="service_closure" id=".service_locator.kEvhmk9"/>
@@ -6413,8 +6412,8 @@
         <argument key="App\Controller\Admin\ConferenceCrudController:renderFilters" type="service_closure" id=".service_locator.kEvhmk9"/>
         <argument key="App\Controller\Admin\ConferenceCrudController:updateEntity" type="service_closure" id=".service_locator.aKM6MDa"/>
         <argument key="App\Controller\Admin\DashboardController:configureUserMenu" type="service_closure" id=".service_locator.st3ASTR"/>
-        <argument key="App\Controller\ConferenceController:index" type="service_closure" id=".service_locator.VfKHQTh"/>
-        <argument key="App\Controller\ConferenceController:show" type="service_closure" id=".service_locator.7ivkO2i"/>
+        <argument key="App\Controller\ConferenceController:index" type="service_closure" id=".service_locator.Lwh3nbS"/>
+        <argument key="App\Controller\ConferenceController:show" type="service_closure" id=".service_locator.zl24D2_"/>
         <argument key="kernel:loadRoutes" type="service_closure" id=".service_locator.xUrKPVU"/>
         <argument key="kernel:registerContainerConfiguration" type="service_closure" id=".service_locator.xUrKPVU"/>
       </argument>
@@ -6993,12 +6992,12 @@
       <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator"/>
     </service>
     <service id="debug.argument_resolver.service.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\ServiceValueResolver">
-      <argument type="service" id=".service_locator.PQjZh4."/>
+      <argument type="service" id=".service_locator.wyVr2iw"/>
     </service>
     <service id="debug.argument_resolver.default.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\DefaultValueResolver"/>
     <service id="debug.argument_resolver.variadic.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\VariadicValueResolver"/>
     <service id="debug.argument_resolver.not_tagged_controller.inner" class="Symfony\Component\HttpKernel\Controller\ArgumentResolver\NotTaggedControllerValueResolver">
-      <argument type="service" id=".service_locator.PQjZh4."/>
+      <argument type="service" id=".service_locator.wyVr2iw"/>
     </service>
     <service id=".doctrine.orm.default_metadata_driver.inner" class="Doctrine\Persistence\Mapping\Driver\MappingDriverChain">
       <call method="addDriver">
@@ -7023,7 +7022,7 @@
     <service id=".errored..service_locator.riFbGaB.EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore" class="EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore"/>
     <service id=".errored..service_locator.W.c5h2_.EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore" class="EasyCorp\Bundle\EasyAdminBundle\Config\KeyValueStore"/>
     <service id=".errored..service_locator.st3ASTR.Symfony\Component\Security\Core\User\UserInterface" class="Symfony\Component\Security\Core\User\UserInterface"/>
-    <service id=".errored..service_locator.7ivkO2i.App\Entity\Conference" class="App\Entity\Conference"/>
+    <service id=".errored..service_locator.zl24D2_.App\Entity\Conference" class="App\Entity\Conference"/>
     <service id=".console.command.about.lazy" class="Symfony\Component\Console\Command\LazyCommand">
       <argument>about</argument>
       <argument type="collection"/>
@@ -7996,7 +7995,7 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Contracts\Orm\EntityPaginatorInterface" alias="EasyCorp\Bundle\EasyAdminBundle\Orm\EntityPaginator"/>
     <service id="container.env_var_processors_locator" alias=".service_locator.gSv9zYw" public="true"/>
     <service id="twig.loader.filesystem" alias="twig.loader.native_filesystem"/>
-    <service id="argument_resolver.controller_locator" alias=".service_locator.PQjZh4."/>
+    <service id="argument_resolver.controller_locator" alias=".service_locator.wyVr2iw"/>
     <service id="session" alias=".session.do-not-use" public="true">
       <deprecated package="symfony/framework-bundle" version="5.3">The "%alias_id%" service and "SessionInterface" alias are deprecated, use "$requestStack-&gt;getSession()" instead.</deprecated>
     </service>
@@ -8018,9 +8017,8 @@
     <service id=".service_locator.nTL_G5r" alias=".service_locator.esmk6IF"/>
     <service id=".service_locator.hNls88j" alias=".service_locator.ENGuM7_"/>
     <service id=".service_locator.6rNHno." alias=".service_locator.riFbGaB"/>
-    <service id=".service_locator.ltjh2dT" alias=".service_locator.VfKHQTh"/>
-    <service id=".service_locator.OkUFvM_" alias=".service_locator.7ivkO2i"/>
-    <service id=".service_locator.ze0cRcf" alias=".service_locator.PQjZh4."/>
+    <service id=".service_locator.aN__NCm" alias=".service_locator.zl24D2_"/>
+    <service id=".service_locator.TcWhfkf" alias=".service_locator.wyVr2iw"/>
     <service id=".service_locator.wKF4yn1" alias=".service_locator.19_mNxd"/>
     <service id=".service_locator.3l1LkXo" alias=".service_locator.ZWFYuib"/>
     <service id=".service_locator.4hi2aOY" alias=".service_locator.bBRwv06"/>
@@ -8061,8 +8059,8 @@
     <service id=".service_locator.UNSqNV2" alias=".service_locator.riFbGaB"/>
     <service id=".service_locator.YGHh.DA" alias=".service_locator.W.c5h2_"/>
     <service id=".service_locator..Z_8zjg" alias=".service_locator.st3ASTR"/>
-    <service id=".service_locator.POOKFzC" alias=".service_locator.VfKHQTh"/>
-    <service id=".service_locator.98c3CfB" alias=".service_locator.7ivkO2i"/>
+    <service id=".service_locator.kMmc1Km" alias=".service_locator.Lwh3nbS"/>
+    <service id=".service_locator.._IGfkG" alias=".service_locator.zl24D2_"/>
     <service id=".service_locator.H4sisVk" alias=".service_locator.Pq4jHMT"/>
     <service id=".service_locator.25uFhYR" alias=".service_locator.1hOIQqn"/>
     <service id=".service_locator..SlaM3H" alias=".service_locator.mx0UMmY"/>
