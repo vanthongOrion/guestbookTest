@@ -7,6 +7,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: CommentRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Comment
 {
     #[ORM\Id]
@@ -81,6 +82,12 @@ class Comment
         $this->createAt = $createAt;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function setCreateAtValue()
+    {
+        $this->createAt = new \DateTimeImmutable();
     }
 
     public function getConference(): ?Conference
