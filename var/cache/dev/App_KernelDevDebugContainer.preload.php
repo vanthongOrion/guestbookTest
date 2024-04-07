@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerCmXMq0N\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerRNp5HtV\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -25,6 +25,7 @@ $classes[] = 'Symfony\Bundle\SecurityBundle\SecurityBundle';
 $classes[] = 'EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle';
 $classes[] = 'Twig\Extra\TwigExtraBundle\TwigExtraBundle';
 $classes[] = 'Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle';
+$classes[] = 'Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle';
 $classes[] = 'Symfony\Component\HttpKernel\CacheClearer\ChainCacheClearer';
 $classes[] = 'Symfony\Component\Filesystem\Filesystem';
 $classes[] = 'Symfony\Component\Form\FormFactory';

@@ -21,6 +21,7 @@
       <parameter key="EasyAdminBundle">EasyCorp\Bundle\EasyAdminBundle\EasyAdminBundle</parameter>
       <parameter key="TwigExtraBundle">Twig\Extra\TwigExtraBundle\TwigExtraBundle</parameter>
       <parameter key="SensioFrameworkExtraBundle">Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle</parameter>
+      <parameter key="DoctrineFixturesBundle">Doctrine\Bundle\FixturesBundle\DoctrineFixturesBundle</parameter>
     </parameter>
     <parameter key="kernel.bundles_metadata" type="collection">
       <parameter key="FrameworkBundle" type="collection">
@@ -70,6 +71,10 @@
       <parameter key="SensioFrameworkExtraBundle" type="collection">
         <parameter key="path">/var/guestbook/guestbookTest/vendor/sensio/framework-extra-bundle/src</parameter>
         <parameter key="namespace">Sensio\Bundle\FrameworkExtraBundle</parameter>
+      </parameter>
+      <parameter key="DoctrineFixturesBundle" type="collection">
+        <parameter key="path">/var/guestbook/guestbookTest/vendor/doctrine/doctrine-fixtures-bundle</parameter>
+        <parameter key="namespace">Doctrine\Bundle\FixturesBundle</parameter>
       </parameter>
     </parameter>
     <parameter key="kernel.charset">UTF-8</parameter>
@@ -373,6 +378,9 @@
       <call method="setContainer">
         <argument type="service" id=".service_locator.RvVdkCh.App\Controller\SecurityController"/>
       </call>
+    </service>
+    <service id="App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true">
+      <tag name="doctrine.fixture.orm"/>
     </service>
     <service id="App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" autoconfigure="true">
       <tag name="doctrine.orm.entity_listener" event="prePersist" method="" lazy="" entity_manager="" entity="App\Entity\Conference" priority=""/>
@@ -1804,6 +1812,7 @@
           <argument>/var/guestbook/guestbookTest/vendor/symfony/security-bundle/translations</argument>
           <argument>/var/guestbook/guestbookTest/vendor/twig/extra-bundle/translations</argument>
           <argument>/var/guestbook/guestbookTest/vendor/sensio/framework-extra-bundle/src/translations</argument>
+          <argument>/var/guestbook/guestbookTest/vendor/doctrine/doctrine-fixtures-bundle/translations</argument>
         </argument>
         <argument key="cache_vary" type="collection">
           <argument key="scanned_directories" type="collection">
@@ -1823,6 +1832,7 @@
             <argument>vendor/symfony/security-bundle/translations</argument>
             <argument>vendor/twig/extra-bundle/translations</argument>
             <argument>vendor/sensio/framework-extra-bundle/src/translations</argument>
+            <argument>vendor/doctrine/doctrine-fixtures-bundle/translations</argument>
           </argument>
         </argument>
       </argument>
@@ -6090,6 +6100,32 @@
     <service id="framework_extra_bundle.argument_name_convertor" class="Sensio\Bundle\FrameworkExtraBundle\Request\ArgumentNameConverter">
       <argument type="service" id="argument_metadata_factory"/>
     </service>
+    <service id="doctrine.fixtures_load_command" class="Doctrine\Bundle\FixturesBundle\Command\LoadDataFixturesDoctrineCommand">
+      <tag name="console.command" command="doctrine:fixtures:load"/>
+      <tag name="container.no_preload"/>
+      <argument type="service" id="doctrine.fixtures.loader"/>
+      <argument type="service" id="doctrine"/>
+      <argument type="collection">
+        <argument key="default" type="service" id="doctrine.fixtures.purger.orm_purger_factory"/>
+      </argument>
+      <call method="setName">
+        <argument>doctrine:fixtures:load</argument>
+      </call>
+    </service>
+    <service id="doctrine.fixtures.loader" class="Doctrine\Bundle\FixturesBundle\Loader\SymfonyFixturesLoader">
+      <argument type="service" id="service_container"/>
+      <call method="addFixtures">
+        <argument type="collection">
+          <argument type="collection">
+            <argument key="fixture" type="service" id="App\DataFixtures\AppFixtures"/>
+            <argument key="groups" type="collection"/>
+          </argument>
+        </argument>
+      </call>
+    </service>
+    <service id="doctrine.fixtures.purger.orm_purger_factory" class="Doctrine\Bundle\FixturesBundle\Purger\ORMPurgerFactory">
+      <tag name="doctrine.fixtures.purger_factory" alias="default"/>
+    </service>
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\Admin\CommentCrudController" class="App\Controller\Admin\CommentCrudController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\Admin\CommentCrudController" class="App\Controller\Admin\CommentCrudController" autowire="true" abstract="true"/>
     <service id=".instanceof.EasyCorp\Bundle\EasyAdminBundle\Contracts\Controller\CrudControllerInterface.0.App\Controller\Admin\CommentCrudController" class="App\Controller\Admin\CommentCrudController" autowire="true" abstract="true"/>
@@ -6108,6 +6144,8 @@
     <service id=".instanceof.Symfony\Contracts\Service\ServiceSubscriberInterface.0.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" abstract="true"/>
     <service id=".instanceof.Symfony\Bundle\FrameworkBundle\Controller\AbstractController.0.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\Controller\SecurityController" class="App\Controller\SecurityController" autowire="true" autoconfigure="true" abstract="true"/>
+    <service id=".instanceof.Doctrine\Bundle\FixturesBundle\ORMFixtureInterface.0.App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" abstract="true"/>
+    <service id=".abstract.instanceof.App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.App\EntityListener\ConferenceEntityListener.0.App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" abstract="true"/>
     <service id=".abstract.instanceof.App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" autoconfigure="true" abstract="true"/>
     <service id=".instanceof.Symfony\Component\EventDispatcher\EventSubscriberInterface.0.App\EventSubscriber\TwigEventSubscriber" class="App\EventSubscriber\TwigEventSubscriber" autowire="true" abstract="true"/>
@@ -7073,10 +7111,10 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry">
       <argument>/var/guestbook/guestbookTest/var/cache/dev</argument>
       <argument type="collection">
-        <argument key="App\Controller\Admin\DashboardController">a3a06fe</argument>
+        <argument key="App\Controller\Admin\DashboardController">64e7d1c</argument>
       </argument>
       <argument type="collection">
-        <argument key="a3a06fe">App\Controller\Admin\DashboardController</argument>
+        <argument key="64e7d1c">App\Controller\Admin\DashboardController</argument>
       </argument>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry">
@@ -7085,16 +7123,16 @@
         <argument key="App\Controller\Admin\ConferenceCrudController">App\Entity\Conference</argument>
       </argument>
       <argument type="collection">
-        <argument key="App\Controller\Admin\CommentCrudController">894bccb</argument>
-        <argument key="App\Controller\Admin\ConferenceCrudController">e7a775d</argument>
+        <argument key="App\Controller\Admin\CommentCrudController">14c1b4e</argument>
+        <argument key="App\Controller\Admin\ConferenceCrudController">f18893a</argument>
       </argument>
       <argument type="collection">
         <argument key="App\Entity\Comment">App\Controller\Admin\CommentCrudController</argument>
         <argument key="App\Entity\Conference">App\Controller\Admin\ConferenceCrudController</argument>
       </argument>
       <argument type="collection">
-        <argument key="894bccb">App\Controller\Admin\CommentCrudController</argument>
-        <argument key="e7a775d">App\Controller\Admin\ConferenceCrudController</argument>
+        <argument key="14c1b4e">App\Controller\Admin\CommentCrudController</argument>
+        <argument key="f18893a">App\Controller\Admin\ConferenceCrudController</argument>
       </argument>
     </service>
     <service id=".service_locator.yY.p4P7" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -7980,7 +8018,7 @@
     </service>
     <service id="console.command_loader" class="Symfony\Component\Console\CommandLoader\ContainerCommandLoader" public="true">
       <tag name="container.no_preload"/>
-      <argument type="service" id=".service_locator.1qc6t6C"/>
+      <argument type="service" id=".service_locator.vymc1xD"/>
       <argument type="collection">
         <argument key="about">console.command.about</argument>
         <argument key="assets:install">console.command.assets_install</argument>
@@ -8055,6 +8093,7 @@
         <argument key="security:hash-password">security.command.user_password_hash</argument>
         <argument key="make:admin:dashboard">EasyCorp\Bundle\EasyAdminBundle\Command\MakeAdminDashboardCommand</argument>
         <argument key="make:admin:crud">EasyCorp\Bundle\EasyAdminBundle\Command\MakeCrudControllerCommand</argument>
+        <argument key="doctrine:fixtures:load">doctrine.fixtures_load_command</argument>
         <argument key="make:auth">maker.auto_command.make_auth</argument>
         <argument key="make:command">maker.auto_command.make_command</argument>
         <argument key="make:twig-component">maker.auto_command.make_twig_component</argument>
@@ -8083,7 +8122,7 @@
         <argument key="make:security:form-login">maker.auto_command.make_security_form_login</argument>
       </argument>
     </service>
-    <service id=".service_locator.1qc6t6C" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.vymc1xD" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="console.command.about" type="service_closure" id=".console.command.about.lazy"/>
@@ -8158,6 +8197,7 @@
         <argument key="security.command.user_password_hash" type="service_closure" id=".security.command.user_password_hash.lazy"/>
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Command\MakeAdminDashboardCommand" type="service_closure" id=".EasyCorp\Bundle\EasyAdminBundle\Command\MakeAdminDashboardCommand.lazy"/>
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Command\MakeCrudControllerCommand" type="service_closure" id=".EasyCorp\Bundle\EasyAdminBundle\Command\MakeCrudControllerCommand.lazy"/>
+        <argument key="doctrine.fixtures_load_command" type="service_closure" id="doctrine.fixtures_load_command"/>
         <argument key="maker.auto_command.make_auth" type="service_closure" id=".maker.auto_command.make_auth.lazy"/>
         <argument key="maker.auto_command.make_command" type="service_closure" id=".maker.auto_command.make_command.lazy"/>
         <argument key="maker.auto_command.make_twig_component" type="service_closure" id=".maker.auto_command.make_twig_component.lazy"/>
@@ -8447,10 +8487,10 @@
     <service id=".service_locator.WxMFOz5" alias=".service_locator.qktDSP1"/>
     <service id=".service_locator.4hi2aOY" alias=".service_locator.bBRwv06"/>
     <service id=".service_locator.O24_MAy" alias=".service_locator.yY.p4P7"/>
-    <service id=".service_locator.fS3VNN6" alias=".service_locator.cubIkmK"/>
-    <service id=".service_locator.XtWVcm_" alias=".service_locator.Wrhv_dH"/>
-    <service id=".service_locator.kmirwWq" alias=".service_locator.u5KlY7v"/>
-    <service id=".service_locator.8zdxT7v" alias=".service_locator.RvVdkCh"/>
+    <service id=".service_locator.z02IZkC" alias=".service_locator.cubIkmK"/>
+    <service id=".service_locator.WlncAv7" alias=".service_locator.Wrhv_dH"/>
+    <service id=".service_locator.eeM0_Qt" alias=".service_locator.u5KlY7v"/>
+    <service id=".service_locator.Bg0zUcQ" alias=".service_locator.RvVdkCh"/>
     <service id="validator" alias="debug.validator" public="true"/>
     <service id="http_client" alias=".debug.http_client"/>
     <service id="event_dispatcher" alias="debug.event_dispatcher" public="true"/>
@@ -8488,10 +8528,10 @@
     <service id=".service_locator.kMmc1Km" alias=".service_locator.Lwh3nbS"/>
     <service id=".service_locator.02qdemK" alias=".service_locator.4SqlA63"/>
     <service id=".service_locator.URfgn8g" alias=".service_locator.zFcJjKU"/>
-    <service id=".service_locator.qoD.fRi" alias=".service_locator.cubIkmK"/>
-    <service id=".service_locator.q9N5X5A" alias=".service_locator.Wrhv_dH"/>
-    <service id=".service_locator.fILlZ5E" alias=".service_locator.u5KlY7v"/>
-    <service id=".service_locator.VJoFMAC" alias=".service_locator.RvVdkCh"/>
+    <service id=".service_locator.U63f5ml" alias=".service_locator.cubIkmK"/>
+    <service id=".service_locator.kdY.ykB" alias=".service_locator.Wrhv_dH"/>
+    <service id=".service_locator.v9T07Do" alias=".service_locator.u5KlY7v"/>
+    <service id=".service_locator.8RGFzLA" alias=".service_locator.RvVdkCh"/>
     <service id=".service_locator.bT.2lOh" alias=".service_locator.ZOHvDA0"/>
     <service id=".service_locator.aa1PbBb" alias=".service_locator.nLgZj7R"/>
   </services>
