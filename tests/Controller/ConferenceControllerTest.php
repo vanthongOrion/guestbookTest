@@ -3,7 +3,7 @@ namespace App\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class ConfereceControllerTest extends WebTestCase
+class ConferenceControllerTest extends WebTestCase
 {
     public function testIndex()
     {
