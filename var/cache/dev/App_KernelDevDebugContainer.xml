@@ -2232,13 +2232,13 @@
     </service>
     <service id=".state_machine.comment.transition.2" class="Symfony\Component\Workflow\Transition">
       <argument>reject_spam</argument>
-      <argument>potential_spam</argument>
-      <argument>published</argument>
+      <argument>submitted</argument>
+      <argument>spam</argument>
     </service>
     <service id=".state_machine.comment.transition.3" class="Symfony\Component\Workflow\Transition">
       <argument>publish</argument>
       <argument>potential_spam</argument>
-      <argument>rejected</argument>
+      <argument>published</argument>
     </service>
     <service id=".state_machine.comment.transition.4" class="Symfony\Component\Workflow\Transition">
       <argument>reject</argument>
