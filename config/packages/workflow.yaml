@@ -3,7 +3,7 @@ framework:
         comment:
             type: state_machine
             audit_trail:
-                enable: "%kernel.debug%"
+                enabled: "%kernel.debug%"
             marking_store:
                 type: 'method'
                 property: 'state'

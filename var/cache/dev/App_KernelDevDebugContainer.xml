@@ -1144,7 +1144,33 @@
     <service id="console.command.workflow_dump" class="Symfony\Bundle\FrameworkBundle\Command\WorkflowDumpCommand">
       <tag name="console.command"/>
       <tag name="container.no_preload"/>
-      <argument type="collection"/>
+      <argument type="collection">
+        <argument key="state_machine.comment" type="service">
+          <service class="Symfony\Component\Workflow\Definition">
+            <argument type="collection">
+              <argument>submitted</argument>
+              <argument>ham</argument>
+              <argument>potential_spam</argument>
+              <argument>spam</argument>
+              <argument>rejected</argument>
+              <argument>published</argument>
+            </argument>
+            <argument type="collection">
+              <argument type="service" id=".state_machine.comment.transition.0"/>
+              <argument type="service" id=".state_machine.comment.transition.1"/>
+              <argument type="service" id=".state_machine.comment.transition.2"/>
+              <argument type="service" id=".state_machine.comment.transition.3"/>
+              <argument type="service" id=".state_machine.comment.transition.4"/>
+              <argument type="service" id=".state_machine.comment.transition.5"/>
+              <argument type="service" id=".state_machine.comment.transition.6"/>
+            </argument>
+            <argument type="collection">
+              <argument>submitted</argument>
+            </argument>
+            <argument type="service" id="state_machine.comment.metadata_store"/>
+          </service>
+        </argument>
+      </argument>
       <call method="setName">
         <argument>workflow:dump</argument>
       </call>
@@ -2183,8 +2209,102 @@
       <argument type="abstract">events to dispatch</argument>
     </service>
     <service id="workflow.marking_store.method" class="Symfony\Component\Workflow\MarkingStore\MethodMarkingStore" abstract="true"/>
-    <service id="workflow.registry" class="Symfony\Component\Workflow\Registry"/>
+    <service id="workflow.registry" class="Symfony\Component\Workflow\Registry">
+      <call method="addWorkflow">
+        <argument type="service" id="state_machine.comment"/>
+        <argument type="service">
+          <service class="Symfony\Component\Workflow\SupportStrategy\InstanceOfSupportStrategy">
+            <argument>App\Entity\Comment</argument>
+          </service>
+        </argument>
+      </call>
+    </service>
     <service id="workflow.security.expression_language" class="Symfony\Component\Workflow\EventListener\ExpressionLanguage"/>
+    <service id=".state_machine.comment.transition.0" class="Symfony\Component\Workflow\Transition">
+      <argument>accept</argument>
+      <argument>submitted</argument>
+      <argument>ham</argument>
+    </service>
+    <service id=".state_machine.comment.transition.1" class="Symfony\Component\Workflow\Transition">
+      <argument>might_be_spam</argument>
+      <argument>submitted</argument>
+      <argument>potential_spam</argument>
+    </service>
+    <service id=".state_machine.comment.transition.2" class="Symfony\Component\Workflow\Transition">
+      <argument>reject_spam</argument>
+      <argument>potential_spam</argument>
+      <argument>published</argument>
+    </service>
+    <service id=".state_machine.comment.transition.3" class="Symfony\Component\Workflow\Transition">
+      <argument>publish</argument>
+      <argument>potential_spam</argument>
+      <argument>rejected</argument>
+    </service>
+    <service id=".state_machine.comment.transition.4" class="Symfony\Component\Workflow\Transition">
+      <argument>reject</argument>
+      <argument>potential_spam</argument>
+      <argument>rejected</argument>
+    </service>
+    <service id=".state_machine.comment.transition.5" class="Symfony\Component\Workflow\Transition">
+      <argument>publish_ham</argument>
+      <argument>ham</argument>
+      <argument>published</argument>
+    </service>
+    <service id=".state_machine.comment.transition.6" class="Symfony\Component\Workflow\Transition">
+      <argument>reject_ham</argument>
+      <argument>ham</argument>
+      <argument>rejected</argument>
+    </service>
+    <service id="state_machine.comment.metadata_store" class="Symfony\Component\Workflow\Metadata\InMemoryMetadataStore">
+      <argument type="collection"/>
+      <argument type="collection"/>
+      <argument type="service">
+        <service class="SplObjectStorage"/>
+      </argument>
+    </service>
+    <service id="state_machine.comment" class="Symfony\Component\Workflow\StateMachine" public="true">
+      <tag name="container.private" package="symfony/framework-bundle" version="5.3"/>
+      <argument type="service" id="state_machine.comment.definition"/>
+      <argument type="service">
+        <service class="Symfony\Component\Workflow\MarkingStore\MethodMarkingStore">
+          <argument>true</argument>
+          <argument>state</argument>
+        </service>
+      </argument>
+      <argument type="service" id="debug.event_dispatcher" on-invalid="ignore"/>
+      <argument>comment</argument>
+      <argument>null</argument>
+    </service>
+    <service id="state_machine.comment.definition" class="Symfony\Component\Workflow\Definition">
+      <argument type="collection">
+        <argument>submitted</argument>
+        <argument>ham</argument>
+        <argument>potential_spam</argument>
+        <argument>spam</argument>
+        <argument>rejected</argument>
+        <argument>published</argument>
+      </argument>
+      <argument type="collection">
+        <argument type="service" id=".state_machine.comment.transition.0"/>
+        <argument type="service" id=".state_machine.comment.transition.1"/>
+        <argument type="service" id=".state_machine.comment.transition.2"/>
+        <argument type="service" id=".state_machine.comment.transition.3"/>
+        <argument type="service" id=".state_machine.comment.transition.4"/>
+        <argument type="service" id=".state_machine.comment.transition.5"/>
+        <argument type="service" id=".state_machine.comment.transition.6"/>
+      </argument>
+      <argument type="collection">
+        <argument>submitted</argument>
+      </argument>
+      <argument type="service" id="state_machine.comment.metadata_store"/>
+    </service>
+    <service id=".state_machine.comment.listener.audit_trail" class="Symfony\Component\Workflow\EventListener\AuditTrailListener">
+      <tag name="monolog.logger" channel="workflow"/>
+      <tag name="kernel.event_listener" event="workflow.comment.leave" method="onLeave"/>
+      <tag name="kernel.event_listener" event="workflow.comment.transition" method="onTransition"/>
+      <tag name="kernel.event_listener" event="workflow.comment.enter" method="onEnter"/>
+      <argument type="service" id="monolog.logger.workflow"/>
+    </service>
     <service id="debug.debug_handlers_listener" class="Symfony\Component\HttpKernel\EventListener\DebugHandlersListener">
       <tag name="kernel.event_subscriber"/>
       <tag name="monolog.logger" channel="php"/>
@@ -2216,6 +2336,30 @@
       <argument type="service" id="debug.stopwatch"/>
       <argument type="service" id="monolog.logger.event" on-invalid="null"/>
       <argument type="service" id="request_stack" on-invalid="null"/>
+      <call method="addListener">
+        <argument>workflow.comment.leave</argument>
+        <argument type="collection">
+          <argument type="service_closure" id=".state_machine.comment.listener.audit_trail"/>
+          <argument>onLeave</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>workflow.comment.transition</argument>
+        <argument type="collection">
+          <argument type="service_closure" id=".state_machine.comment.listener.audit_trail"/>
+          <argument>onTransition</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>workflow.comment.enter</argument>
+        <argument type="collection">
+          <argument type="service_closure" id=".state_machine.comment.listener.audit_trail"/>
+          <argument>onEnter</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
       <call method="addListener">
         <argument>kernel.controller</argument>
         <argument type="collection">
@@ -2858,7 +3002,7 @@
     <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router">
       <tag name="monolog.logger" channel="router"/>
       <tag name="container.service_subscriber" id="routing.loader"/>
-      <argument type="service" id=".service_locator.gOdCe1K.router.default"/>
+      <argument type="service" id=".service_locator.smLGMEV.router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
         <argument key="cache_dir">/var/guestbook/guestbookTest/var/cache/dev</argument>
@@ -7411,6 +7555,19 @@
       </call>
       <configurator class="Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddDebugLogProcessorPass" method="configureLogger"/>
     </service>
+    <service id="monolog.logger.workflow" class="Symfony\Bridge\Monolog\Logger">
+      <argument>workflow</argument>
+      <call method="pushProcessor">
+        <argument type="service" id="debug.log_processor"/>
+      </call>
+      <call method="pushHandler">
+        <argument type="service" id="monolog.handler.console"/>
+      </call>
+      <call method="pushHandler">
+        <argument type="service" id="monolog.handler.main"/>
+      </call>
+      <configurator class="Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddDebugLogProcessorPass" method="configureLogger"/>
+    </service>
     <service id="monolog.logger.php" class="Symfony\Bridge\Monolog\Logger">
       <argument>php</argument>
       <call method="pushProcessor">
@@ -7735,17 +7892,17 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wSgjnB6" method="withContext"/>
     </service>
-    <service id=".service_locator.gOdCe1K" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.smLGMEV" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="routing.loader" type="service_closure" id="routing.loader"/>
       </argument>
     </service>
-    <service id=".service_locator.gOdCe1K.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.smLGMEV.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="router.default"/>
       <argument>router.default</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.gOdCe1K" method="withContext"/>
+      <factory service=".service_locator.smLGMEV" method="withContext"/>
     </service>
     <service id=".service_locator.oCg4uHe" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -8878,6 +9035,7 @@
     <service id="translator" alias="translator.data_collector" public="true"/>
     <service id="translator.formatter" alias="translator.formatter.default"/>
     <service id="Symfony\Component\Workflow\Registry" alias="workflow.registry"/>
+    <service id="Symfony\Component\Workflow\WorkflowInterface $commentStateMachine" alias="state_machine.comment"/>
     <service id="Symfony\Component\HttpKernel\Debug\FileLinkFormatter" alias="debug.file_link_formatter"/>
     <service id="Symfony\Component\Stopwatch\Stopwatch" alias="debug.stopwatch"/>
     <service id="router" alias="router.default" public="true"/>
@@ -9004,6 +9162,7 @@
     <service id="Psr\Log\LoggerInterface $cacheLogger" alias="monolog.logger.cache"/>
     <service id="Psr\Log\LoggerInterface $httpClientLogger" alias="monolog.logger.http_client"/>
     <service id="Psr\Log\LoggerInterface $translationLogger" alias="monolog.logger.translation"/>
+    <service id="Psr\Log\LoggerInterface $workflowLogger" alias="monolog.logger.workflow"/>
     <service id="Psr\Log\LoggerInterface $phpLogger" alias="monolog.logger.php"/>
     <service id="Psr\Log\LoggerInterface $eventLogger" alias="monolog.logger.event"/>
     <service id="Psr\Log\LoggerInterface $routerLogger" alias="monolog.logger.router"/>

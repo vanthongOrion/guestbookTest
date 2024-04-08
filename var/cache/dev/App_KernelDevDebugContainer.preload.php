@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerMvZJ0CL\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerQy1JpnN\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -55,6 +55,9 @@ $classes[] = 'Symfony\Component\Security\Csrf\TokenGenerator\UriSafeTokenGenerat
 $classes[] = 'Symfony\Component\Security\Core\Authentication\Token\Storage\UsageTrackingTokenStorage';
 $classes[] = 'Symfony\Component\DependencyInjection\ServiceLocator';
 $classes[] = 'Symfony\Component\HttpFoundation\Session\Session';
+$classes[] = 'Symfony\Component\Workflow\StateMachine';
+$classes[] = 'Symfony\Component\Workflow\Definition';
+$classes[] = 'Symfony\Component\Workflow\MarkingStore\MethodMarkingStore';
 $classes[] = 'Twig\Cache\FilesystemCache';
 $classes[] = 'Twig\Extension\CoreExtension';
 $classes[] = 'Twig\Extension\EscaperExtension';
@@ -82,6 +85,7 @@ $classes[] = 'Symfony\Bridge\Twig\Extension\HttpFoundationExtension';
 $classes[] = 'Symfony\Component\HttpFoundation\UrlHelper';
 $classes[] = 'Symfony\Bridge\Twig\Extension\WorkflowExtension';
 $classes[] = 'Symfony\Component\Workflow\Registry';
+$classes[] = 'Symfony\Component\Workflow\SupportStrategy\InstanceOfSupportStrategy';
 $classes[] = 'Symfony\Bridge\Twig\Extension\FormExtension';
 $classes[] = 'Symfony\Bridge\Twig\Extension\DumpExtension';
 $classes[] = 'Symfony\Bridge\Twig\Extension\LogoutUrlExtension';
@@ -106,6 +110,8 @@ $classes[] = 'App\MessageHandler\CommentMessageHandler';
 $classes[] = 'Symfony\Component\HttpFoundation\RequestMatcher';
 $classes[] = 'Symfony\Component\HttpFoundation\Session\SessionInterface';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Session\DeprecatedSessionFactory';
+$classes[] = 'Symfony\Component\Workflow\EventListener\AuditTrailListener';
+$classes[] = 'Symfony\Component\Workflow\Transition';
 $classes[] = 'current';
 $classes[] = 'App\Controller\Admin\CommentCrudController';
 $classes[] = 'App\Controller\Admin\ConferenceCrudController';
@@ -419,6 +425,7 @@ $classes[] = 'Symfony\Component\HttpKernel\DependencyInjection\ServicesResetter'
 $classes[] = 'Symfony\Component\HttpFoundation\Session\SessionFactory';
 $classes[] = 'Symfony\Component\HttpKernel\EventListener\SessionListener';
 $classes[] = 'Symfony\Component\String\Slugger\AsciiSlugger';
+$classes[] = 'Symfony\Component\Workflow\Metadata\InMemoryMetadataStore';
 $classes[] = 'Symfony\Component\HttpKernel\EventListener\StreamedResponseListener';
 $classes[] = 'Symfony\Component\Translation\Loader\CsvFileLoader';
 $classes[] = 'Symfony\Component\Translation\Loader\IcuDatFileLoader';
