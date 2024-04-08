@@ -333,6 +333,10 @@
         <parameter>messenger</parameter>
         <parameter>@WebProfiler/Collector/messenger.html.twig</parameter>
       </parameter>
+      <parameter key="mailer.data_collector" type="collection">
+        <parameter>mailer</parameter>
+        <parameter>@WebProfiler/Collector/mailer.html.twig</parameter>
+      </parameter>
       <parameter key="EasyCorp\Bundle\EasyAdminBundle\Inspector\DataCollector" type="collection">
         <parameter>easyadmin</parameter>
         <parameter>@EasyAdmin/inspector/data_collector.html.twig</parameter>
@@ -415,6 +419,9 @@
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <argument type="service" id="App\SpamChecker"/>
       <argument type="service" id="App\Repository\CommentRepository"/>
+      <argument type="service" id="debug.traced.messenger.bus.default"/>
+      <argument type="service" id="state_machine.comment"/>
+      <argument type="service" id="monolog.logger"/>
     </service>
     <service id="App\Repository\AdminRepository" class="App\Repository\AdminRepository" autowire="true" autoconfigure="true">
       <tag name="doctrine.repository_service"/>
@@ -554,6 +561,7 @@
         <argument key="cache.property_info" type="service" id="cache.property_info" on-invalid="ignore_uninitialized"/>
         <argument key="cache.messenger.restart_workers_signal" type="service" id="cache.messenger.restart_workers_signal" on-invalid="ignore_uninitialized"/>
         <argument key="http_client" type="service" id=".debug.http_client" on-invalid="ignore_uninitialized"/>
+        <argument key="mailer.message_logger_listener" type="service" id="mailer.message_logger_listener" on-invalid="ignore_uninitialized"/>
         <argument key="debug.stopwatch" type="service" id="debug.stopwatch" on-invalid="ignore_uninitialized"/>
         <argument key="debug.event_dispatcher" type="service" id="debug.event_dispatcher" on-invalid="ignore_uninitialized"/>
         <argument key="session_listener" type="service" id="session_listener" on-invalid="ignore_uninitialized"/>
@@ -599,6 +607,9 @@
         </argument>
         <argument key="http_client" type="collection">
           <argument>?reset</argument>
+        </argument>
+        <argument key="mailer.message_logger_listener" type="collection">
+          <argument>reset</argument>
         </argument>
         <argument key="debug.stopwatch" type="collection">
           <argument>reset</argument>
@@ -1002,6 +1013,12 @@
               <argument type="collection"/>
             </argument>
           </argument>
+          <argument key="Symfony\Component\Mailer\Messenger\SendEmailMessage" type="collection">
+            <argument type="collection">
+              <argument>mailer.messenger.message_handler</argument>
+              <argument type="collection"/>
+            </argument>
+          </argument>
         </argument>
       </argument>
       <call method="setName">
@@ -1060,6 +1077,7 @@
         <argument>/var/guestbook/guestbookTest/vendor/symfony/security-core/Resources/translations</argument>
       </argument>
       <argument type="collection">
+        <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Email</argument>
         <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Form</argument>
       </argument>
       <argument type="collection"/>
@@ -1085,6 +1103,7 @@
         <argument>/var/guestbook/guestbookTest/vendor/symfony/security-core/Resources/translations</argument>
       </argument>
       <argument type="collection">
+        <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Email</argument>
         <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Form</argument>
       </argument>
       <argument type="collection"/>
@@ -1565,6 +1584,67 @@
       <argument type="abstract">multiplier</argument>
       <argument type="abstract">max delay ms</argument>
       <argument type="abstract">jitter</argument>
+    </service>
+    <service id="mailer.mailer" class="Symfony\Component\Mailer\Mailer">
+      <argument type="service" id="mailer.transports"/>
+      <argument type="service" id="debug.traced.messenger.bus.default" on-invalid="null"/>
+      <argument type="service" id="debug.event_dispatcher" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transports" class="Symfony\Component\Mailer\Transport\Transports">
+      <argument type="collection">
+        <argument key="main">%env(MAILER_DSN)%</argument>
+      </argument>
+      <factory service="mailer.transport_factory" method="fromStrings"/>
+    </service>
+    <service id="mailer.transport_factory" class="Symfony\Component\Mailer\Transport">
+      <argument type="tagged_iterator" tag="mailer.transport_factory"/>
+    </service>
+    <service id="mailer.default_transport" class="Symfony\Component\Mailer\Transport\TransportInterface">
+      <argument>%env(MAILER_DSN)%</argument>
+      <factory service="mailer.transport_factory" method="fromString"/>
+    </service>
+    <service id="mailer.messenger.message_handler" class="Symfony\Component\Mailer\Messenger\MessageHandler">
+      <tag name="messenger.message_handler"/>
+      <argument type="service" id="mailer.transports"/>
+    </service>
+    <service id="mailer.envelope_listener" class="Symfony\Component\Mailer\EventListener\EnvelopeListener">
+      <tag name="kernel.event_subscriber"/>
+      <argument>null</argument>
+      <argument>null</argument>
+    </service>
+    <service id="mailer.message_logger_listener" class="Symfony\Component\Mailer\EventListener\MessageLoggerListener">
+      <tag name="kernel.event_subscriber"/>
+      <tag name="kernel.reset" method="reset"/>
+    </service>
+    <service id="mailer.transport_factory.abstract" class="Symfony\Component\Mailer\Transport\AbstractTransportFactory" abstract="true">
+      <tag name="monolog.logger" channel="mailer"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id=".debug.http_client" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.null" class="Symfony\Component\Mailer\Transport\NullTransportFactory">
+      <tag name="mailer.transport_factory"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id=".debug.http_client" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.sendmail" class="Symfony\Component\Mailer\Transport\SendmailTransportFactory">
+      <tag name="mailer.transport_factory"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id=".debug.http_client" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.smtp" class="Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory">
+      <tag name="mailer.transport_factory" priority="-100"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id=".debug.http_client" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
+    </service>
+    <service id="mailer.transport_factory.native" class="Symfony\Component\Mailer\Transport\NativeTransportFactory">
+      <tag name="mailer.transport_factory"/>
+      <argument type="service" id="debug.event_dispatcher"/>
+      <argument type="service" id=".debug.http_client" on-invalid="ignore"/>
+      <argument type="service" id="monolog.logger.mailer" on-invalid="ignore"/>
     </service>
     <service id="translator.default" class="Symfony\Bundle\FrameworkBundle\Translation\Translator">
       <tag name="kernel.locale_aware"/>
@@ -2537,6 +2617,22 @@
         <argument>0</argument>
       </call>
       <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="mailer.envelope_listener"/>
+          <argument>onMessage</argument>
+        </argument>
+        <argument>-255</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="mailer.message_logger_listener"/>
+          <argument>onMessage</argument>
+        </argument>
+        <argument>-255</argument>
+      </call>
+      <call method="addListener">
         <argument>kernel.request</argument>
         <argument type="collection">
           <argument type="service_closure" id="debug.debug_handlers_listener"/>
@@ -2701,6 +2797,14 @@
         <argument type="collection">
           <argument type="service_closure" id="data_collector.request"/>
           <argument>onKernelResponse</argument>
+        </argument>
+        <argument>0</argument>
+      </call>
+      <call method="addListener">
+        <argument>Symfony\Component\Mailer\Event\MessageEvent</argument>
+        <argument type="collection">
+          <argument type="service_closure" id="twig.mailer.message_listener"/>
+          <argument>onMessage</argument>
         </argument>
         <argument>0</argument>
       </call>
@@ -3002,7 +3106,7 @@
     <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router">
       <tag name="monolog.logger" channel="router"/>
       <tag name="container.service_subscriber" id="routing.loader"/>
-      <argument type="service" id=".service_locator.smLGMEV.router.default"/>
+      <argument type="service" id=".service_locator.XiRCaFk.router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
         <argument key="cache_dir">/var/guestbook/guestbookTest/var/cache/dev</argument>
@@ -3730,6 +3834,9 @@
         <argument type="service" id="data_collector.messenger"/>
       </call>
       <call method="add">
+        <argument type="service" id="mailer.data_collector"/>
+      </call>
+      <call method="add">
         <argument type="service" id="EasyCorp\Bundle\EasyAdminBundle\Inspector\DataCollector"/>
       </call>
       <call method="add">
@@ -3891,6 +3998,10 @@
         <argument type="service" id="debug.traced.messenger.bus.default"/>
       </call>
     </service>
+    <service id="mailer.data_collector" class="Symfony\Component\Mailer\DataCollector\MessageDataCollector">
+      <tag name="data_collector" template="@WebProfiler/Collector/mailer.html.twig" id="mailer"/>
+      <argument type="service" id="mailer.message_logger_listener"/>
+    </service>
     <service id="data_collector.http_client" class="Symfony\Component\HttpClient\DataCollector\HttpClientDataCollector">
       <tag name="data_collector" template="@WebProfiler/Collector/http_client.html.twig" id="http_client" priority="250"/>
       <call method="registerClient">
@@ -4022,6 +4133,7 @@
     <service id="twig.template_iterator" class="Symfony\Bundle\TwigBundle\TemplateIterator">
       <argument type="service" id="kernel"/>
       <argument type="collection">
+        <argument key="/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Email">email</argument>
         <argument key="/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Form">null</argument>
       </argument>
       <argument>/var/guestbook/guestbookTest/templates</argument>
@@ -4086,6 +4198,14 @@
       </call>
       <call method="addPath">
         <argument>/var/guestbook/guestbookTest/templates</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Email</argument>
+        <argument>email</argument>
+      </call>
+      <call method="addPath">
+        <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Email</argument>
+        <argument>!email</argument>
       </call>
       <call method="addPath">
         <argument>/var/guestbook/guestbookTest/vendor/symfony/twig-bridge/Resources/views/Form</argument>
@@ -4218,6 +4338,14 @@
       <call method="setDescription">
         <argument>Lint a Twig template and outputs encountered errors</argument>
       </call>
+    </service>
+    <service id="twig.mailer.message_listener" class="Symfony\Component\Mailer\EventListener\MessageListener">
+      <tag name="kernel.event_subscriber"/>
+      <argument>null</argument>
+      <argument type="service" id="twig.mime_body_renderer"/>
+    </service>
+    <service id="twig.mime_body_renderer" class="Symfony\Bridge\Twig\Mime\BodyRenderer">
+      <argument type="service" id="twig"/>
     </service>
     <service id="web_profiler.controller.profiler" class="Symfony\Bundle\WebProfilerBundle\Controller\ProfilerController" public="true">
       <argument type="service" id="router.default" on-invalid="null"/>
@@ -7466,10 +7594,17 @@
       <argument type="service" id="App\MessageHandler\CommentMessageHandler"/>
       <argument type="collection"/>
     </service>
+    <service id=".messenger.handler_descriptor.tGvt0LH" class="Symfony\Component\Messenger\Handler\HandlerDescriptor">
+      <argument type="service" id="mailer.messenger.message_handler"/>
+      <argument type="collection"/>
+    </service>
     <service id="messenger.bus.default.messenger.handlers_locator" class="Symfony\Component\Messenger\Handler\HandlersLocator">
       <argument type="collection">
         <argument key="App\Message\CommentMessage" type="iterator">
           <argument type="service" id=".messenger.handler_descriptor.qup7Sir"/>
+        </argument>
+        <argument key="Symfony\Component\Mailer\Messenger\SendEmailMessage" type="iterator">
+          <argument type="service" id=".messenger.handler_descriptor.tGvt0LH"/>
         </argument>
       </argument>
     </service>
@@ -7531,6 +7666,19 @@
     </service>
     <service id="monolog.logger.http_client" class="Symfony\Bridge\Monolog\Logger">
       <argument>http_client</argument>
+      <call method="pushProcessor">
+        <argument type="service" id="debug.log_processor"/>
+      </call>
+      <call method="pushHandler">
+        <argument type="service" id="monolog.handler.console"/>
+      </call>
+      <call method="pushHandler">
+        <argument type="service" id="monolog.handler.main"/>
+      </call>
+      <configurator class="Symfony\Bundle\FrameworkBundle\DependencyInjection\Compiler\AddDebugLogProcessorPass" method="configureLogger"/>
+    </service>
+    <service id="monolog.logger.mailer" class="Symfony\Bridge\Monolog\Logger">
+      <argument>mailer</argument>
       <call method="pushProcessor">
         <argument type="service" id="debug.log_processor"/>
       </call>
@@ -7892,17 +8040,17 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wSgjnB6" method="withContext"/>
     </service>
-    <service id=".service_locator.smLGMEV" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.XiRCaFk" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="routing.loader" type="service_closure" id="routing.loader"/>
       </argument>
     </service>
-    <service id=".service_locator.smLGMEV.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.XiRCaFk.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="router.default"/>
       <argument>router.default</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.smLGMEV" method="withContext"/>
+      <factory service=".service_locator.XiRCaFk" method="withContext"/>
     </service>
     <service id=".service_locator.oCg4uHe" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -9029,6 +9177,12 @@
     <service id="Symfony\Contracts\Translation\TranslatorInterface" alias="translator.data_collector"/>
     <service id="Symfony\Component\Asset\Packages" alias="assets.packages"/>
     <service id="Symfony\Contracts\HttpClient\HttpClientInterface" alias=".debug.http_client"/>
+    <service id="mailer" alias="mailer.mailer"/>
+    <service id="Symfony\Component\Mailer\MailerInterface" alias="mailer.mailer"/>
+    <service id="Symfony\Component\Mailer\Transport\TransportInterface" alias="mailer.default_transport"/>
+    <service id="mailer.logger_message_listener" alias="mailer.message_logger_listener">
+      <deprecated package="symfony/framework-bundle" version="5.2">The "%alias_id%" alias is deprecated, use "mailer.message_logger_listener" instead.</deprecated>
+    </service>
     <service id="Symfony\Component\Translation\Reader\TranslationReaderInterface" alias="translation.reader"/>
     <service id="Symfony\Component\Translation\Extractor\ExtractorInterface" alias="translation.extractor"/>
     <service id="Symfony\Component\Translation\Writer\TranslationWriterInterface" alias="translation.writer"/>
@@ -9161,6 +9315,7 @@
     <service id="Psr\Log\LoggerInterface $messengerLogger" alias="monolog.logger.messenger"/>
     <service id="Psr\Log\LoggerInterface $cacheLogger" alias="monolog.logger.cache"/>
     <service id="Psr\Log\LoggerInterface $httpClientLogger" alias="monolog.logger.http_client"/>
+    <service id="Psr\Log\LoggerInterface $mailerLogger" alias="monolog.logger.mailer"/>
     <service id="Psr\Log\LoggerInterface $translationLogger" alias="monolog.logger.translation"/>
     <service id="Psr\Log\LoggerInterface $workflowLogger" alias="monolog.logger.workflow"/>
     <service id="Psr\Log\LoggerInterface $phpLogger" alias="monolog.logger.php"/>
@@ -9184,10 +9339,10 @@
     <service id=".service_locator.WxMFOz5" alias=".service_locator.qktDSP1"/>
     <service id=".service_locator.nk0lT0X" alias=".service_locator.1kmbKC8"/>
     <service id=".service_locator.O24_MAy" alias=".service_locator.yY.p4P7"/>
-    <service id=".service_locator.FjLPTd7" alias=".service_locator.cubIkmK"/>
-    <service id=".service_locator.5L7oc8J" alias=".service_locator.Wrhv_dH"/>
-    <service id=".service_locator.31s7cs0" alias=".service_locator.u5KlY7v"/>
-    <service id=".service_locator.ObMAX8Q" alias=".service_locator.RvVdkCh"/>
+    <service id=".service_locator.UhXWAWX" alias=".service_locator.cubIkmK"/>
+    <service id=".service_locator.AZlqQRO" alias=".service_locator.Wrhv_dH"/>
+    <service id=".service_locator.W3kmwul" alias=".service_locator.u5KlY7v"/>
+    <service id=".service_locator.N8amtVu" alias=".service_locator.RvVdkCh"/>
     <service id="validator" alias="debug.validator" public="true"/>
     <service id="http_client" alias=".debug.http_client"/>
     <service id="event_dispatcher" alias="debug.event_dispatcher" public="true"/>
@@ -9226,10 +9381,10 @@
     <service id=".service_locator.kMmc1Km" alias=".service_locator.Lwh3nbS"/>
     <service id=".service_locator.02qdemK" alias=".service_locator.4SqlA63"/>
     <service id=".service_locator.URfgn8g" alias=".service_locator.zFcJjKU"/>
-    <service id=".service_locator.X.gLCLv" alias=".service_locator.cubIkmK"/>
-    <service id=".service_locator.F7Tzit6" alias=".service_locator.Wrhv_dH"/>
-    <service id=".service_locator.miW8Ern" alias=".service_locator.u5KlY7v"/>
-    <service id=".service_locator.3r_JsCU" alias=".service_locator.RvVdkCh"/>
+    <service id=".service_locator..3KOWlB" alias=".service_locator.cubIkmK"/>
+    <service id=".service_locator.V96c5bx" alias=".service_locator.Wrhv_dH"/>
+    <service id=".service_locator.vyjZSFu" alias=".service_locator.u5KlY7v"/>
+    <service id=".service_locator.cu5ead4" alias=".service_locator.RvVdkCh"/>
     <service id=".service_locator.bT.2lOh" alias=".service_locator.ZOHvDA0"/>
     <service id=".service_locator.aa1PbBb" alias=".service_locator.nLgZj7R"/>
   </services>
