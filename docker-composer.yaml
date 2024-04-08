@@ -1,26 +1,9 @@
 #version: '3.8'
  
 services:
-  database:
-    image: mysql:8.3
-    restart: always
-    environment:
-      MYSQL_DATABASE: 'guestbook'
-      # So you don't have to use root, but you can if you like
-      MYSQL_USER: 'guestbook'
-      # You can use whatever password you like
-      MYSQL_PASSWORD: 'guestbook'
-      # Password for root access
-      MYSQL_ROOT_PASSWORD: 'Ar$@dmiN1!3#'
-    ports:
-      # <Port exposed> : <MySQL Port running inside container>
-      - '3309:3309'
-    expose:
-      # Opens port 3306 on the container
-      - '3309'
-      # Where our data will be persisted
-    volumes:
-      - guestbook:/var/lib/mysql
+    
+    mailcatcher:
+         image: schickling/mailcatcher
+         ports: [1025, 1080]
 # Names our volume
 volumes:
-  guestbook:
