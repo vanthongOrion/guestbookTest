@@ -381,6 +381,7 @@
     </service>
     <service id="App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true">
       <tag name="doctrine.fixture.orm"/>
+      <argument type="service" id="security.password_hasher_factory"/>
     </service>
     <service id="App\EntityListener\ConferenceEntityListener" class="App\EntityListener\ConferenceEntityListener" autowire="true" autoconfigure="true">
       <tag name="doctrine.orm.entity_listener" event="prePersist" method="" lazy="" entity_manager="" entity="App\Entity\Conference" priority=""/>
