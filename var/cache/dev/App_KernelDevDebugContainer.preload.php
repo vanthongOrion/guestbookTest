@@ -10,7 +10,7 @@ if (in_array(PHP_SAPI, ['cli', 'phpdbg'], true)) {
 }
 
 require dirname(__DIR__, 3).'/vendor/autoload.php';
-(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\ContainerEW5u3qP\App_KernelDevDebugContainer::class, null);
+(require __DIR__.'/App_KernelDevDebugContainer.php')->set(\Container5Hk5Bu3\App_KernelDevDebugContainer::class, null);
 
 $classes = [];
 $classes[] = 'Symfony\Bundle\FrameworkBundle\FrameworkBundle';
@@ -108,9 +108,8 @@ $classes[] = 'Symfony\Contracts\HttpClient\HttpClientInterface';
 $classes[] = 'Symfony\Component\HttpClient\HttpClient';
 $classes[] = 'Symfony\Component\Messenger\Handler\HandlerDescriptor';
 $classes[] = 'App\MessageHandler\CommentMessageHandler';
+$classes[] = 'Symfony\Component\Mailer\Mailer';
 $classes[] = 'Symfony\Component\Mailer\Messenger\MessageHandler';
-$classes[] = 'Symfony\Component\Mailer\Transport\Transports';
-$classes[] = 'Symfony\Component\Mailer\Transport';
 $classes[] = 'Symfony\Component\HttpFoundation\RequestMatcher';
 $classes[] = 'Symfony\Component\HttpFoundation\Session\SessionInterface';
 $classes[] = 'Symfony\Bundle\FrameworkBundle\Session\DeprecatedSessionFactory';
@@ -331,6 +330,8 @@ $classes[] = 'Symfony\Component\Mailer\Transport\NativeTransportFactory';
 $classes[] = 'Symfony\Component\Mailer\Transport\NullTransportFactory';
 $classes[] = 'Symfony\Component\Mailer\Transport\SendmailTransportFactory';
 $classes[] = 'Symfony\Component\Mailer\Transport\Smtp\EsmtpTransportFactory';
+$classes[] = 'Symfony\Component\Mailer\Transport\Transports';
+$classes[] = 'Symfony\Component\Mailer\Transport';
 $classes[] = 'Symfony\Component\Messenger\Middleware\AddBusNameStampMiddleware';
 $classes[] = 'Symfony\Component\Messenger\Middleware\HandleMessageMiddleware';
 $classes[] = 'Symfony\Component\Messenger\Handler\HandlersLocator';

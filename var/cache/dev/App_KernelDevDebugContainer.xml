@@ -81,6 +81,7 @@
     <parameter key="kernel.container_class">App_KernelDevDebugContainer</parameter>
     <parameter key="container.dumper.inline_class_loader">true</parameter>
     <parameter key="container.dumper.inline_factories">true</parameter>
+    <parameter key="default_admin_email">admin@example.com</parameter>
     <parameter key="event_dispatcher.event_aliases" type="collection">
       <parameter key="Symfony\Component\Console\Event\ConsoleCommandEvent">console.command</parameter>
       <parameter key="Symfony\Component\Console\Event\ConsoleErrorEvent">console.error</parameter>
@@ -359,7 +360,7 @@
       <tag name="ea.crud_controller"/>
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.cubIkmK.App\Controller\Admin\CommentCrudController"/>
+        <argument type="service" id=".service_locator.hd3qp6D.App\Controller\Admin\CommentCrudController"/>
       </call>
     </service>
     <service id="App\Controller\Admin\ConferenceCrudController" class="App\Controller\Admin\ConferenceCrudController" public="true" autowire="true" autoconfigure="true">
@@ -367,7 +368,7 @@
       <tag name="ea.crud_controller"/>
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.cubIkmK.App\Controller\Admin\ConferenceCrudController"/>
+        <argument type="service" id=".service_locator.hd3qp6D.App\Controller\Admin\ConferenceCrudController"/>
       </call>
     </service>
     <service id="App\Controller\Admin\DashboardController" class="App\Controller\Admin\DashboardController" public="true" autowire="true" autoconfigure="true">
@@ -375,7 +376,7 @@
       <tag name="ea.dashboard_controller"/>
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.Wrhv_dH.App\Controller\Admin\DashboardController"/>
+        <argument type="service" id=".service_locator.E5.MENc.App\Controller\Admin\DashboardController"/>
       </call>
     </service>
     <service id="App\Controller\ConferenceController" class="App\Controller\ConferenceController" public="true" autowire="true" autoconfigure="true">
@@ -385,14 +386,14 @@
       <argument type="service" id="doctrine.orm.default_entity_manager"/>
       <argument type="service" id="debug.traced.messenger.bus.default"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.u5KlY7v.App\Controller\ConferenceController"/>
+        <argument type="service" id=".service_locator.r0kFmXW.App\Controller\ConferenceController"/>
       </call>
     </service>
     <service id="App\Controller\SecurityController" class="App\Controller\SecurityController" public="true" autowire="true" autoconfigure="true">
       <tag name="controller.service_arguments"/>
       <tag name="container.service_subscriber"/>
       <call method="setContainer">
-        <argument type="service" id=".service_locator.RvVdkCh.App\Controller\SecurityController"/>
+        <argument type="service" id=".service_locator.if6jv10.App\Controller\SecurityController"/>
       </call>
     </service>
     <service id="App\DataFixtures\AppFixtures" class="App\DataFixtures\AppFixtures" autowire="true" autoconfigure="true">
@@ -421,6 +422,8 @@
       <argument type="service" id="App\Repository\CommentRepository"/>
       <argument type="service" id="debug.traced.messenger.bus.default"/>
       <argument type="service" id="state_machine.comment"/>
+      <argument type="service" id="mailer.mailer"/>
+      <argument>%env(string:default:default_admin_email:ADMIN_EMAIL)%</argument>
       <argument type="service" id="monolog.logger"/>
     </service>
     <service id="App\Repository\AdminRepository" class="App\Repository\AdminRepository" autowire="true" autoconfigure="true">
@@ -1609,8 +1612,8 @@
     </service>
     <service id="mailer.envelope_listener" class="Symfony\Component\Mailer\EventListener\EnvelopeListener">
       <tag name="kernel.event_subscriber"/>
-      <argument>null</argument>
-      <argument>null</argument>
+      <argument>%env(string:default:default_admin_email:ADMIN_EMAIL)%</argument>
+      <argument type="collection"/>
     </service>
     <service id="mailer.message_logger_listener" class="Symfony\Component\Mailer\EventListener\MessageLoggerListener">
       <tag name="kernel.event_subscriber"/>
@@ -3106,7 +3109,7 @@
     <service id="router.default" class="Symfony\Bundle\FrameworkBundle\Routing\Router">
       <tag name="monolog.logger" channel="router"/>
       <tag name="container.service_subscriber" id="routing.loader"/>
-      <argument type="service" id=".service_locator.XiRCaFk.router.default"/>
+      <argument type="service" id=".service_locator.5U_JAf7.router.default"/>
       <argument>kernel::loadRoutes</argument>
       <argument type="collection">
         <argument key="cache_dir">/var/guestbook/guestbookTest/var/cache/dev</argument>
@@ -7873,10 +7876,10 @@
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\DashboardControllerRegistry">
       <argument>/var/guestbook/guestbookTest/var/cache/dev</argument>
       <argument type="collection">
-        <argument key="App\Controller\Admin\DashboardController">64e7d1c</argument>
+        <argument key="App\Controller\Admin\DashboardController">6a0d768</argument>
       </argument>
       <argument type="collection">
-        <argument key="64e7d1c">App\Controller\Admin\DashboardController</argument>
+        <argument key="6a0d768">App\Controller\Admin\DashboardController</argument>
       </argument>
     </service>
     <service id="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry" class="EasyCorp\Bundle\EasyAdminBundle\Registry\CrudControllerRegistry">
@@ -7885,16 +7888,16 @@
         <argument key="App\Controller\Admin\ConferenceCrudController">App\Entity\Conference</argument>
       </argument>
       <argument type="collection">
-        <argument key="App\Controller\Admin\CommentCrudController">14c1b4e</argument>
-        <argument key="App\Controller\Admin\ConferenceCrudController">f18893a</argument>
+        <argument key="App\Controller\Admin\CommentCrudController">7616a53</argument>
+        <argument key="App\Controller\Admin\ConferenceCrudController">7ea2bb2</argument>
       </argument>
       <argument type="collection">
         <argument key="App\Entity\Comment">App\Controller\Admin\CommentCrudController</argument>
         <argument key="App\Entity\Conference">App\Controller\Admin\ConferenceCrudController</argument>
       </argument>
       <argument type="collection">
-        <argument key="14c1b4e">App\Controller\Admin\CommentCrudController</argument>
-        <argument key="f18893a">App\Controller\Admin\ConferenceCrudController</argument>
+        <argument key="7616a53">App\Controller\Admin\CommentCrudController</argument>
+        <argument key="7ea2bb2">App\Controller\Admin\ConferenceCrudController</argument>
       </argument>
     </service>
     <service id=".service_locator.yY.p4P7" class="Symfony\Component\DependencyInjection\ServiceLocator">
@@ -7913,7 +7916,7 @@
         <argument key="translation.loader.yml" type="service_closure" id="translation.loader.yml"/>
       </argument>
     </service>
-    <service id=".service_locator.cubIkmK" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.hd3qp6D" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Factory\ActionFactory" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\Factory\ActionFactory" on-invalid="ignore"/>
@@ -7943,19 +7946,19 @@
         <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.cubIkmK.App\Controller\Admin\CommentCrudController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.hd3qp6D.App\Controller\Admin\CommentCrudController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\Admin\CommentCrudController"/>
       <argument>App\Controller\Admin\CommentCrudController</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.cubIkmK" method="withContext"/>
+      <factory service=".service_locator.hd3qp6D" method="withContext"/>
     </service>
-    <service id=".service_locator.cubIkmK.App\Controller\Admin\ConferenceCrudController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.hd3qp6D.App\Controller\Admin\ConferenceCrudController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\Admin\ConferenceCrudController"/>
       <argument>App\Controller\Admin\ConferenceCrudController</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.cubIkmK" method="withContext"/>
+      <factory service=".service_locator.hd3qp6D" method="withContext"/>
     </service>
-    <service id=".service_locator.Wrhv_dH" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.E5.MENc" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator" type="service_closure" id="EasyCorp\Bundle\EasyAdminBundle\Router\AdminUrlGenerator" on-invalid="ignore"/>
@@ -7974,13 +7977,13 @@
         <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.Wrhv_dH.App\Controller\Admin\DashboardController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.E5.MENc.App\Controller\Admin\DashboardController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\Admin\DashboardController"/>
       <argument>App\Controller\Admin\DashboardController</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.Wrhv_dH" method="withContext"/>
+      <factory service=".service_locator.E5.MENc" method="withContext"/>
     </service>
-    <service id=".service_locator.u5KlY7v" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.r0kFmXW" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="doctrine" type="service_closure" id="doctrine" on-invalid="ignore"/>
@@ -7998,13 +8001,13 @@
         <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.u5KlY7v.App\Controller\ConferenceController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.r0kFmXW.App\Controller\ConferenceController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\ConferenceController"/>
       <argument>App\Controller\ConferenceController</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.u5KlY7v" method="withContext"/>
+      <factory service=".service_locator.r0kFmXW" method="withContext"/>
     </service>
-    <service id=".service_locator.RvVdkCh" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.if6jv10" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="doctrine" type="service_closure" id="doctrine" on-invalid="ignore"/>
@@ -8022,11 +8025,11 @@
         <argument key="twig" type="service_closure" id="twig" on-invalid="ignore"/>
       </argument>
     </service>
-    <service id=".service_locator.RvVdkCh.App\Controller\SecurityController" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.if6jv10.App\Controller\SecurityController" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="App\Controller\SecurityController"/>
       <argument>App\Controller\SecurityController</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.RvVdkCh" method="withContext"/>
+      <factory service=".service_locator.if6jv10" method="withContext"/>
     </service>
     <service id=".service_locator.wSgjnB6" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -8040,17 +8043,17 @@
       <argument type="service" id="service_container"/>
       <factory service=".service_locator.wSgjnB6" method="withContext"/>
     </service>
-    <service id=".service_locator.XiRCaFk" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.5U_JAf7" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
       <argument type="collection">
         <argument key="routing.loader" type="service_closure" id="routing.loader"/>
       </argument>
     </service>
-    <service id=".service_locator.XiRCaFk.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
+    <service id=".service_locator.5U_JAf7.router.default" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator_context" id="router.default"/>
       <argument>router.default</argument>
       <argument type="service" id="service_container"/>
-      <factory service=".service_locator.XiRCaFk" method="withContext"/>
+      <factory service=".service_locator.5U_JAf7" method="withContext"/>
     </service>
     <service id=".service_locator.oCg4uHe" class="Symfony\Component\DependencyInjection\ServiceLocator">
       <tag name="container.service_locator"/>
@@ -9339,10 +9342,10 @@
     <service id=".service_locator.WxMFOz5" alias=".service_locator.qktDSP1"/>
     <service id=".service_locator.nk0lT0X" alias=".service_locator.1kmbKC8"/>
     <service id=".service_locator.O24_MAy" alias=".service_locator.yY.p4P7"/>
-    <service id=".service_locator.UhXWAWX" alias=".service_locator.cubIkmK"/>
-    <service id=".service_locator.AZlqQRO" alias=".service_locator.Wrhv_dH"/>
-    <service id=".service_locator.W3kmwul" alias=".service_locator.u5KlY7v"/>
-    <service id=".service_locator.N8amtVu" alias=".service_locator.RvVdkCh"/>
+    <service id=".service_locator.dt9AeKe" alias=".service_locator.hd3qp6D"/>
+    <service id=".service_locator.iKN.ou_" alias=".service_locator.E5.MENc"/>
+    <service id=".service_locator.U8Rle2m" alias=".service_locator.r0kFmXW"/>
+    <service id=".service_locator.bZo7DhV" alias=".service_locator.if6jv10"/>
     <service id="validator" alias="debug.validator" public="true"/>
     <service id="http_client" alias=".debug.http_client"/>
     <service id="event_dispatcher" alias="debug.event_dispatcher" public="true"/>
@@ -9381,10 +9384,10 @@
     <service id=".service_locator.kMmc1Km" alias=".service_locator.Lwh3nbS"/>
     <service id=".service_locator.02qdemK" alias=".service_locator.4SqlA63"/>
     <service id=".service_locator.URfgn8g" alias=".service_locator.zFcJjKU"/>
-    <service id=".service_locator..3KOWlB" alias=".service_locator.cubIkmK"/>
-    <service id=".service_locator.V96c5bx" alias=".service_locator.Wrhv_dH"/>
-    <service id=".service_locator.vyjZSFu" alias=".service_locator.u5KlY7v"/>
-    <service id=".service_locator.cu5ead4" alias=".service_locator.RvVdkCh"/>
+    <service id=".service_locator.x8NC.o4" alias=".service_locator.hd3qp6D"/>
+    <service id=".service_locator.UoqOa6Y" alias=".service_locator.E5.MENc"/>
+    <service id=".service_locator.MyqNzIq" alias=".service_locator.r0kFmXW"/>
+    <service id=".service_locator.RVQBBZI" alias=".service_locator.if6jv10"/>
     <service id=".service_locator.bT.2lOh" alias=".service_locator.ZOHvDA0"/>
     <service id=".service_locator.aa1PbBb" alias=".service_locator.nLgZj7R"/>
   </services>
