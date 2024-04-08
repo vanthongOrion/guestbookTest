@@ -25,7 +25,7 @@ class ConferenceControllerTest extends WebTestCase
 
         $this->assertPageTitleContains('Hanoi');
         $this->assertResponseIsSuccessful();
-        $this->assertSelectorTextContains('h2','Hanoi 2023');
+        $this->assertSelectorTextContains('h2','Hanoi2019 Conference');
         $this->assertSelectorExists('div:contains("There are 1 comments")');
     }
 
