@@ -25,11 +25,11 @@ framework:
                     from: submitted
                     to:   potential_spam
                 reject_spam:
-                    from: potential_spam
-                    to:   published
+                    from: submitted
+                    to:   spam
                 publish:
                     from: potential_spam
-                    to:   rejected
+                    to:   published
                 reject:
                     from: potential_spam
                     to:   rejected
