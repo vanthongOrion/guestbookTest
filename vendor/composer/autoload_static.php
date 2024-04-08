@@ -69,6 +69,10 @@ class ComposerStaticInit1fe481952ab423ec65f400c40539aec6
             'Symfony\\Component\\PasswordHasher\\' => 33,
             'Symfony\\Component\\OptionsResolver\\' => 34,
             'Symfony\\Component\\Mime\\' => 23,
+            'Symfony\\Component\\Messenger\\Bridge\\Redis\\' => 41,
+            'Symfony\\Component\\Messenger\\Bridge\\Doctrine\\' => 44,
+            'Symfony\\Component\\Messenger\\Bridge\\Amqp\\' => 40,
+            'Symfony\\Component\\Messenger\\' => 28,
             'Symfony\\Component\\Intl\\' => 23,
             'Symfony\\Component\\HttpKernel\\' => 29,
             'Symfony\\Component\\HttpFoundation\\' => 33,
@@ -292,6 +296,22 @@ class ComposerStaticInit1fe481952ab423ec65f400c40539aec6
         'Symfony\\Component\\Mime\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/mime',
+        ),
+        'Symfony\\Component\\Messenger\\Bridge\\Redis\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/redis-messenger',
+        ),
+        'Symfony\\Component\\Messenger\\Bridge\\Doctrine\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/doctrine-messenger',
+        ),
+        'Symfony\\Component\\Messenger\\Bridge\\Amqp\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/amqp-messenger',
+        ),
+        'Symfony\\Component\\Messenger\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/messenger',
         ),
         'Symfony\\Component\\Intl\\' => 
         array (
