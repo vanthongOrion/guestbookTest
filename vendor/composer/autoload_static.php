@@ -51,6 +51,7 @@ class ComposerStaticInit1fe481952ab423ec65f400c40539aec6
             'Symfony\\Contracts\\EventDispatcher\\' => 34,
             'Symfony\\Contracts\\Cache\\' => 24,
             'Symfony\\Component\\Yaml\\' => 23,
+            'Symfony\\Component\\Workflow\\' => 27,
             'Symfony\\Component\\VarExporter\\' => 30,
             'Symfony\\Component\\VarDumper\\' => 28,
             'Symfony\\Component\\Validator\\' => 28,
@@ -224,6 +225,10 @@ class ComposerStaticInit1fe481952ab423ec65f400c40539aec6
         'Symfony\\Component\\Yaml\\' => 
         array (
             0 => __DIR__ . '/..' . '/symfony/yaml',
+        ),
+        'Symfony\\Component\\Workflow\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/symfony/workflow',
         ),
         'Symfony\\Component\\VarExporter\\' => 
         array (
